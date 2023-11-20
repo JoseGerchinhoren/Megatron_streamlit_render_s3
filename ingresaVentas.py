@@ -1,12 +1,19 @@
 import streamlit as st
 import boto3
-import os
 import pandas as pd
 import io
 import json
 from datetime import datetime
 
-#
+# Cargar configuración desde el archivo config.json
+with open("../config.json") as config_file:
+    config = json.load(config_file)
+
+# Desempaquetar las credenciales desde el archivo de configuración
+aws_access_key = config["aws_access_key"]
+aws_secret_key = config["aws_secret_key"]
+region_name = config["region_name"]
+bucket_name = config["bucket_name"]
 
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
@@ -42,11 +49,11 @@ def insertar_venta(fecha, producto, precio, metodo_pago, id_usuario):
         st.error(f"Error al registrar la venta: {e}")
 
 def venta(id_usuario):
-    
     st.title("Registrar Venta")
 
     # Campos para ingresar los datos de la venta
-    fecha = st.date_input("Fecha de la venta:")
+    if st.session_state.user_rol == "admin":
+        fecha = st.date_input("Fecha de la venta:")
     producto = st.text_input("Producto vendido:")
     precio = st.text_input("Precio:")
     if precio:
@@ -61,10 +68,16 @@ def venta(id_usuario):
 
     # Botón para registrar la venta
     if st.button("Registrar Venta"):
-        if fecha and producto and precio is not None and metodo_pago:
-            insertar_venta(fecha, producto, precio, metodo_pago, id_usuario)
+        if st.session_state.user_rol == "admin":
+            if fecha and producto and precio > 0 and metodo_pago:
+                insertar_venta(fecha, producto, precio, metodo_pago, id_usuario)
+            else:
+                st.warning("Por favor, complete todos los campos.")
         else:
-            st.warning("Por favor, complete todos los campos.")
+            if producto and precio > 0 and metodo_pago:
+                insertar_venta(datetime.now(), producto, precio, metodo_pago, id_usuario)
+            else:
+                st.warning("Por favor, complete todos los campos.")
 
 if __name__ == "__main__":
-    venta(1)
+    venta()

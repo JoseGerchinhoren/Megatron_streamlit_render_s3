@@ -5,7 +5,11 @@ import pandas as pd
 import io
 from datetime import datetime
 
-#
+# Configura tus credenciales y la región de AWS desde variables de entorno
+aws_access_key = 'AKIATZ3Z7UEGFAQAAH7R'
+aws_secret_key = '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'
+region_name = 'sa-east-1'
+bucket_name = 'megatron-accesorios'
 
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
