@@ -4,17 +4,26 @@ import os
 import pandas as pd
 import io
 from datetime import datetime, timedelta
-import json
+#import json
 
-# Cargar configuración desde el archivo config.json
-with open("../config.json") as config_file:
-    config = json.load(config_file)
 
-# Desempaquetar las credenciales desde el archivo de configuración
-aws_access_key = config["aws_access_key"]
-aws_secret_key = config["aws_secret_key"]
-region_name = config["region_name"]
-bucket_name = config["bucket_name"]
+# # Cargar configuración desde el archivo config.json
+# with open("../config.json") as config_file:
+#     config = json.load(config_file)
+
+# # Desempaquetar las credenciales desde el archivo de configuración
+# aws_access_key = config["aws_access_key"]
+# aws_secret_key = config["aws_secret_key"]
+# region_name = config["region_name"]
+# bucket_name = config["bucket_name"]
+
+
+# Configura tus credenciales y la región de AWS desde variables de entorno
+aws_access_key = os.getenv('aws_access_key_id')
+aws_secret_key = os.getenv('aws_secret_access_key')
+region_name = os.getenv('aws_region')
+bucket_name = 'megatron-accesorios'
+
 
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
@@ -30,7 +39,8 @@ def visualiza_ventas():
     # Construir la expresión booleana en función de los filtros
     fecha_filtro = None
     if st.sidebar.checkbox("Ventas del día"):
-        fecha_filtro = (datetime.today().strftime('%Y-%m-%d'), datetime.today().strftime('%Y-%m-%d'))
+        fecha_seleccionada = st.sidebar.date_input("Seleccione la fecha", datetime.today())
+        fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
     elif st.sidebar.checkbox("Ventas del mes"):
         first_day_of_month = datetime.today().replace(day=1).strftime('%Y-%m-%d')
         last_day_of_month = (datetime.today().replace(day=1, month=datetime.today().month + 1) - timedelta(days=1)).strftime('%Y-%m-%d')
