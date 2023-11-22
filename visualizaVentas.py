@@ -4,25 +4,24 @@ import os
 import pandas as pd
 import io
 from datetime import datetime, timedelta
-#import json
+import json
+
+# Cargar configuración desde el archivo config.json
+with open("../config.json") as config_file:
+    config = json.load(config_file)
+
+# Desempaquetar las credenciales desde el archivo de configuración
+aws_access_key = config["aws_access_key"]
+aws_secret_key = config["aws_secret_key"]
+region_name = config["region_name"]
+bucket_name = config["bucket_name"]
 
 
-# # Cargar configuración desde el archivo config.json
-# with open("../config.json") as config_file:
-#     config = json.load(config_file)
-
-# # Desempaquetar las credenciales desde el archivo de configuración
-# aws_access_key = config["aws_access_key"]
-# aws_secret_key = config["aws_secret_key"]
-# region_name = config["region_name"]
-# bucket_name = config["bucket_name"]
-
-
-# Configura tus credenciales y la región de AWS desde variables de entorno
-aws_access_key = os.getenv('aws_access_key_id')
-aws_secret_key = os.getenv('aws_secret_access_key')
-region_name = os.getenv('aws_region')
-bucket_name = 'megatron-accesorios'
+# # Configura tus credenciales y la región de AWS desde variables de entorno
+# aws_access_key = os.getenv('aws_access_key_id')
+# aws_secret_key = os.getenv('aws_secret_access_key')
+# region_name = os.getenv('aws_region')
+# bucket_name = 'megatron-accesorios'
 
 
 # Conecta a S3
@@ -35,6 +34,9 @@ def visualiza_ventas():
     csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
     response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
     ventas_df = pd.read_csv(response['Body'])
+
+    # Renombrar columnas y cambiar el orden
+    ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'idUsuario': 'ID de Usuario'}, inplace=True)
 
     # Construir la expresión booleana en función de los filtros
     fecha_filtro = None
@@ -50,29 +52,32 @@ def visualiza_ventas():
 
     # Aplicar filtros
     if fecha_filtro:
-        ventas_df['fecha'] = pd.to_datetime(ventas_df['fecha'])
-        ventas_df = ventas_df[(ventas_df['fecha'] >= fecha_filtro[0]) & (ventas_df['fecha'] <= fecha_filtro[1])]
+        ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
+        ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
 
     if id_usuario:
-        ventas_df['idUsuario'] = ventas_df['idUsuario'].astype(int)
-        ventas_df = ventas_df[ventas_df['idUsuario'] == int(id_usuario)]
+        ventas_df['ID de Usuario'] = ventas_df['ID de Usuario'].astype(int)
+        ventas_df = ventas_df[ventas_df['ID de Usuario'] == int(id_usuario)]
 
-    # Asegurarse de que la columna 'fecha' sea de tipo datetime
-    ventas_df['fecha'] = pd.to_datetime(ventas_df['fecha'])
+    # Asegurarse de que la columna 'Fecha' sea de tipo datetime
+    ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
 
     # Formatear las fechas antes de mostrar el DataFrame
-    ventas_df['fecha'] = ventas_df['fecha'].dt.strftime('%Y-%m-%d')
+    ventas_df['Fecha'] = ventas_df['Fecha'].dt.strftime('%Y-%m-%d')
+
+    # Ordenar el DataFrame por 'idVenta' en orden descendente
+    ventas_df = ventas_df.sort_values(by='ID', ascending=False)
 
     # Mostrar la tabla de ventas
     st.dataframe(ventas_df)
 
     # Calcular y mostrar estadísticas
-    total_precios = ventas_df["precio"].sum()
-    st.title(f"Total de Ventas: ${total_precios:}")
+    total_precios = int(ventas_df["Precio"].sum())  # Convertir a número entero
+    st.title(f"Total de Ventas: ${total_precios}")
 
-    for metodo_pago in ventas_df["metodoPago"].unique():
-        total_metodo_pago = ventas_df[ventas_df["metodoPago"] == metodo_pago]["precio"].sum()
-        st.write(f"Total en {metodo_pago}: ${total_metodo_pago}")
+    for metodo_pago in ventas_df["Método de Pago"].unique():
+        total_metodo_pago = ventas_df[ventas_df["Método de Pago"] == metodo_pago]["Precio"].sum()
+        st.write(f"Total en {metodo_pago}: ${int(total_metodo_pago)}")  # Convertir a número entero
 
 def editar_ventas():
     st.title("Editar Ventas")
