@@ -26,7 +26,7 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar una venta en la base de datos
-def insertar_pedido_funda(fecha,pedido,nombreCliente,contacto,estado,montoSeña,id_usuario):
+def insertar_pedido_funda(fecha,pedido,nombreCliente,contacto,estado,montoSeña,nombre_usuario):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'pedidosFundas.csv'
@@ -40,7 +40,7 @@ def insertar_pedido_funda(fecha,pedido,nombreCliente,contacto,estado,montoSeña,
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idPedidoFunda': nuevo_id, 'fecha': fecha, 'pedido': pedido, 'nombreCliente': nombreCliente, 'contacto': contacto, 'estado': estado, 'montoSeña': montoSeña, 'idUsuario': id_usuario}
+        nueva_fila = {'idPedidoFunda': nuevo_id, 'fecha': fecha, 'pedido': pedido, 'nombreCliente': nombreCliente, 'contacto': contacto, 'estado': estado, 'montoSeña': montoSeña, 'nombreUsuario': nombre_usuario}
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         pedidos_df = pd.concat([pedidos_df, pd.DataFrame([nueva_fila])], ignore_index=True)
@@ -55,7 +55,7 @@ def insertar_pedido_funda(fecha,pedido,nombreCliente,contacto,estado,montoSeña,
     except Exception as e:
         st.error(f"Error al registrar el pedido: {e}")
 
-def ingresaPedidoFunda(id_usuario):
+def ingresaPedidoFunda(nombre_usuario):
     st.title("Registrar Pedido de Funda")
 
     # Campos para ingresar los datos del pedido de funda
@@ -81,7 +81,7 @@ def ingresaPedidoFunda(id_usuario):
     # Botón para registrar el pedido de funda
     if st.button("Registrar Pedido"):
         if fecha and pedido and nombreCliente and contacto and estado:
-            insertar_pedido_funda(fecha, pedido, nombreCliente, contacto, estado, monto_sena, id_usuario)
+            insertar_pedido_funda(fecha, pedido, nombreCliente, contacto, estado, monto_sena, nombre_usuario)
         else:
             st.warning("Por favor, complete todos los campos.")
 

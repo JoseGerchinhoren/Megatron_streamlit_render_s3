@@ -2,34 +2,46 @@ import streamlit as st
 import pyodbc
 import pandas as pd
 import json
+import boto3
+import os
+import io
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Conexión a la base de datos SQL Server
-db = pyodbc.connect(
-    driver=config["driver"],
-    server=config["server"],
-    database=config["database"],
-    uid=config["user"],
-    pwd=config["password"]
-)
+# Desempaquetar las credenciales desde el archivo de configuración
+aws_access_key = config["aws_access_key"]
+aws_secret_key = config["aws_secret_key"]
+region_name = config["region_name"]
+bucket_name = config["bucket_name"]
+
+
+# # Configura tus credenciales y la región de AWS desde variables de entorno
+# aws_access_key = os.getenv('aws_access_key_id')
+# aws_secret_key = os.getenv('aws_secret_access_key')
+# region_name = os.getenv('aws_region')
+# bucket_name = 'megatron-accesorios'
+
+
+# Conecta a S3
+s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def editar_estado_pedido_funda(pedidos_df, id_pedido_funda, nuevo_estado):
     try:
-        # Crear un cursor para ejecutar comandos SQL
-        cursor = db.cursor()
-
         # Verificar si el ID del Pedido de Funda existe
         if id_pedido_funda not in pedidos_df['ID'].values:
             st.warning(f"El ID del Pedido de Funda {id_pedido_funda} no existe.")
             return
 
-        # Actualizar el estado del Pedido de Funda en la base de datos
-        query = f"UPDATE pedidosFundas SET estado = '{nuevo_estado}' WHERE idPedidoFunda = {id_pedido_funda}"
-        cursor.execute(query)
-        db.commit()
+        # Actualizar el estado del Pedido de Funda en el DataFrame
+        pedidos_df.loc[pedidos_df['ID'] == id_pedido_funda, 'Estado'] = nuevo_estado
+
+        # Guardar el DataFrame modificado en S3
+        s3_csv_key = 'pedidosFundas.csv'
+        csv_buffer = io.StringIO()
+        pedidos_df.to_csv(csv_buffer, index=False)
+        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=s3_csv_key)
 
         st.success(f"Estado del Pedido de Funda {id_pedido_funda} editado correctamente a: {nuevo_estado}")
 
@@ -39,33 +51,16 @@ def editar_estado_pedido_funda(pedidos_df, id_pedido_funda, nuevo_estado):
 def visualiza_pedidos_fundas():
     st.title("Visualizar Pedidos de Fundas")
 
-    # Construir la consulta SQL para obtener los pedidos de fundas
-    query = "SELECT * FROM pedidosFundas ORDER BY idPedidoFunda DESC"
+    # Cargar el archivo pedidosFundas.csv desde S3
+    s3_csv_key = 'pedidosFundas.csv'
+    csv_obj = s3.get_object(Bucket=bucket_name, Key=s3_csv_key)
+    pedidos_df = pd.read_csv(csv_obj['Body'])
 
-    # Ejecutar la consulta y obtener los resultados en un DataFrame
-    pedidos_df = pd.read_sql(query, db)
-
-    # Consulta SQL para obtener la información de los usuarios
-    query_usuarios = "SELECT idUsuario, nombreApellido FROM Usuarios"
-    usuarios_df = pd.read_sql(query_usuarios, db)
-
-    # Fusionar (unir) el DataFrame de ventas con el DataFrame de usuarios
-    pedidos_df = pd.merge(pedidos_df, usuarios_df, on="idUsuario", how="left")
+    # Imprimir la forma del DataFrame
+    st.write(f"Forma del DataFrame: {pedidos_df.shape}")
 
     # Cambiar los nombres de las columnas
-    pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña","ID Usuario", "Nombre de Usuario"]
-
-    # Cambiar el orden del DataFrame
-    pedidos_df = pedidos_df[[
-        "ID",
-        "Fecha",
-        "Pedido",
-        "Estado",
-        "Monto Seña",
-        "Nombre del Cliente",
-        "Contacto",
-        "Nombre de Usuario"
-    ]]
+    pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña", "Nombre de Usuario"]
 
     # Agregar un filtro por estado
     estados = pedidos_df['Estado'].unique()

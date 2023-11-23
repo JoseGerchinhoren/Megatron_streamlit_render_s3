@@ -36,7 +36,7 @@ def visualiza_ventas():
     ventas_df = pd.read_csv(response['Body'])
 
     # Renombrar columnas y cambiar el orden
-    ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'idUsuario': 'ID de Usuario'}, inplace=True)
+    ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Nombre de Usuario'}, inplace=True)
 
     # Construir la expresión booleana en función de los filtros
     fecha_filtro = None
@@ -48,16 +48,15 @@ def visualiza_ventas():
         last_day_of_month = (datetime.today().replace(day=1, month=datetime.today().month + 1) - timedelta(days=1)).strftime('%Y-%m-%d')
         fecha_filtro = (first_day_of_month, last_day_of_month)
 
-    id_usuario = st.sidebar.text_input("Filtrar por ID de Usuario", key="id_usuario")
+    nombre_usuario = st.sidebar.text_input("Filtrar por nombre de Usuario", key="nombre_usuario")
 
     # Aplicar filtros
     if fecha_filtro:
         ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
         ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
 
-    if id_usuario:
-        ventas_df['ID de Usuario'] = ventas_df['ID de Usuario'].astype(int)
-        ventas_df = ventas_df[ventas_df['ID de Usuario'] == int(id_usuario)]
+    if nombre_usuario:
+        ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == (nombre_usuario)]
 
     # Asegurarse de que la columna 'Fecha' sea de tipo datetime
     ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
@@ -95,7 +94,7 @@ def editar_ventas():
         venta_editar_df = ventas_df[ventas_df['idVenta'] == int(id_venta_editar)]
 
         # Verificar si el usuario es admin
-        if st.session_state.user_rol == "admin" or st.session_state.user_rol == "usuario":
+        if st.session_state.user_rol == "admin":
             if not venta_editar_df.empty:
                 # Mostrar la información actual de la venta
                 st.write("Información actual de la venta:")

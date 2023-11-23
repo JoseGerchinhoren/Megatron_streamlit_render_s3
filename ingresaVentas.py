@@ -27,7 +27,7 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar una venta en la base de datos
-def insertar_venta(fecha, producto, precio, metodo_pago, id_usuario):
+def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'ventas.csv'
@@ -41,7 +41,7 @@ def insertar_venta(fecha, producto, precio, metodo_pago, id_usuario):
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'idUsuario': id_usuario}
+        nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'nombreUsuario': nombre_usuario}
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         ventas_df = pd.concat([ventas_df, pd.DataFrame([nueva_fila])], ignore_index=True)
@@ -56,7 +56,7 @@ def insertar_venta(fecha, producto, precio, metodo_pago, id_usuario):
     except Exception as e:
         st.error(f"Error al registrar la venta: {e}")
 
-def venta(id_usuario):
+def venta(nombre_usuario):
     st.title("Registrar Venta")
 
     # Campos para ingresar los datos de la venta
@@ -78,12 +78,12 @@ def venta(id_usuario):
     if st.button("Registrar Venta"):
         if st.session_state.user_rol == "admin":
             if fecha and producto and precio > 0 and metodo_pago:
-                insertar_venta(fecha, producto, precio, metodo_pago, id_usuario)
+                insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario)
             else:
                 st.warning("Por favor, complete todos los campos.")
         else:
             if producto and precio > 0 and metodo_pago:
-                insertar_venta(datetime.now(), producto, precio, metodo_pago, id_usuario)
+                insertar_venta(datetime.now(), producto, precio, metodo_pago, nombre_usuario)
             else:
                 st.warning("Por favor, complete todos los campos.")
 
