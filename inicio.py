@@ -84,14 +84,14 @@ def main():
         st.sidebar.title("Menú")
 
         if user_rol == "admin":
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido de Funda", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
             if selected_option == "Nueva Venta":
                 venta(st.session_state.user_nombre_apellido)
             # if selected_option == "Crear Usuario":
             #     crear_usuario()
             if selected_option == "Visualizar Ventas":
                 visualiza_ventas()
-            if selected_option == "Nuevo Pedido de Funda":
+            if selected_option == "Nuevo Pedido":
                 ingresaPedidoFunda(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Pedidos de Fundas":
                 visualiza_pedidos_fundas()
@@ -103,12 +103,12 @@ def main():
             #     visualizar_usuarios()
 
         else:
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido de Funda", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos"])
             if selected_option == "Nueva Venta":
                 venta(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Ventas":
                 visualiza_ventas()
-            if selected_option == "Nuevo Pedido de Funda":
+            if selected_option == "Nuevo Pedido":
                 ingresaPedidoFunda(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Pedidos de Fundas":
                 visualiza_pedidos_fundas()

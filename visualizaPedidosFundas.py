@@ -27,37 +27,92 @@ bucket_name = config["bucket_name"]
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
-def editar_estado_pedido_funda(pedidos_df, id_pedido_funda, nuevo_estado):
-    try:
-        # Verificar si el ID del Pedido de Funda existe
-        if id_pedido_funda not in pedidos_df['ID'].values:
-            st.warning(f"El ID del Pedido de Funda {id_pedido_funda} no existe.")
-            return
+def editar_estado_pedido():
+    st.title("Editar Estado de Pedido")
 
-        # Actualizar el estado del Pedido de Funda en el DataFrame
-        pedidos_df.loc[pedidos_df['ID'] == id_pedido_funda, 'Estado'] = nuevo_estado
+    # Agregar un campo para ingresar el idPedido
+    id_pedido_editar = st.text_input("Ingrese el ID del pedido del que desea editar el estado:")
 
-        # Guardar el DataFrame modificado en S3
-        s3_csv_key = 'pedidosFundas.csv'
-        csv_buffer = io.StringIO()
-        pedidos_df.to_csv(csv_buffer, index=False)
-        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=s3_csv_key)
+    if id_pedido_editar:
+        # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
+        csv_file_key = 'pedidos.csv'
+        response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
+        pedidos_df = pd.read_csv(response['Body'])
 
-        st.success(f"Estado del Pedido de Funda {id_pedido_funda} editado correctamente a: {nuevo_estado}")
+        # Filtrar el DataFrame para obtener el pedido específico por ID
+        pedidos_editar_df = pedidos_df[pedidos_df['idPedido'] == int(id_pedido_editar)]
 
-    except Exception as e:
-        st.error(f"Error al editar el estado del Pedido de Funda: {e}")
+        if not pedidos_editar_df.empty:
+            # Mostrar campo para editar el estado
+            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["Señado", "Pedido", "Avisado", "Entregado", "Cancelado"], index=0)
+            pedidos_editar_df.loc[pedidos_editar_df.index[0], 'estado'] = nuevo_estado  # Cambiado 'Estado' a 'estado'
+
+            # Botón para guardar los cambios
+            if st.button("Guardar cambios"):
+                # Actualizar el DataFrame original con los cambios realizados
+                pedidos_df.update(pedidos_editar_df)
+
+                # Guardar el DataFrame actualizado en S3
+                with io.StringIO() as csv_buffer:
+                    pedidos_df.to_csv(csv_buffer, index=False)
+                    s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
+
+                st.success("¡Estado del pedido actualizado correctamente!")
+
+        else:
+            st.warning(f"No se encontró ningun pedido con el ID {id_pedido_editar}")
+
+def editar_pedido():
+    st.title("Editar Pedido")
+
+    # Agregar un campo para ingresar el idVenta
+    id_pedido_editar = st.text_input("Ingrese el ID del pedido que desea editar:")
+
+    if id_pedido_editar:
+        # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
+        csv_file_key = 'pedidos.csv'
+        response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
+        pedidos_df = pd.read_csv(response['Body'])
+
+        # Filtrar el DataFrame para obtener la venta específica por ID
+        pedidos_editar_df = pedidos_df[pedidos_df['idPedido'] == int(id_pedido_editar)]
+
+        # Verificar si el usuario es admin
+        if st.session_state.user_rol == "admin":
+            if not pedidos_editar_df.empty:
+                # Mostrar la información actual de la venta
+                st.write("Información actual de la venta:")
+                st.dataframe(pedidos_editar_df)
+
+                # Mostrar campos para editar cada variable
+                for column in pedidos_editar_df.columns:
+                    nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedidos_editar_df.iloc[0][column])
+                    pedidos_editar_df.at[pedidos_editar_df.index[0], column] = nuevo_valor
+
+                # Botón para guardar los cambios
+                if st.button("Guardar cambios"):
+                    # Actualizar el DataFrame original con los cambios realizados
+                    pedidos_df.update(pedidos_editar_df)
+
+                    # Guardar el DataFrame actualizado en S3
+                    with io.StringIO() as csv_buffer:
+                        pedidos_df.to_csv(csv_buffer, index=False)
+                        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
+
+                    st.success("¡Pedido actualizado correctamente!")
+
+            else:
+                st.warning(f"No se encontró ningun pedido con el ID {id_pedido_editar}")
+        else:
+            st.warning("No tienes permisos para editar pedidos.")
 
 def visualiza_pedidos_fundas():
     st.title("Visualizar Pedidos de Fundas")
 
     # Cargar el archivo pedidosFundas.csv desde S3
-    s3_csv_key = 'pedidosFundas.csv'
+    s3_csv_key = 'pedidos.csv'
     csv_obj = s3.get_object(Bucket=bucket_name, Key=s3_csv_key)
     pedidos_df = pd.read_csv(csv_obj['Body'])
-
-    # Imprimir la forma del DataFrame
-    st.write(f"Forma del DataFrame: {pedidos_df.shape}")
 
     # Cambiar los nombres de las columnas
     pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña", "Nombre de Usuario"]
@@ -72,16 +127,14 @@ def visualiza_pedidos_fundas():
     # Mostrar la tabla de pedidos de fundas
     st.dataframe(pedidos_df)
 
-    # Sección para la edición del estado de registros
-    st.subheader("Editar Estado")
-    id_pedido_funda = st.number_input("Ingrese el ID del Pedido de Funda que desea editar:", value=0)
-    nuevo_estado = st.selectbox("Nuevo valor del campo estado:", ["Señado", "Pedido", "Avisado","Entregado", "Cancelado"])
-
-    if st.button("Guardar"):
-        editar_estado_pedido_funda(pedidos_df, id_pedido_funda, nuevo_estado)
-
 def main():
     visualiza_pedidos_fundas()
+
+    editar_estado_pedido()
+
+    # Verificar si el usuario es admin
+    if st.session_state.user_rol == "admin":
+        editar_pedido()
 
 if __name__ == "__main__":
     main()
