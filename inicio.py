@@ -7,6 +7,7 @@ from ingresaVentas import venta
 from visualizaVentas import main as visualiza_ventas
 from ingresaPedidoFunda import ingresaPedidoFunda
 from visualizaPedidosFundas import main as visualiza_pedidos_fundas
+from ingresaArreglo import ingresa_servicio_tecnico
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -87,18 +88,18 @@ def main():
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
             if selected_option == "Nueva Venta":
                 venta(st.session_state.user_nombre_apellido)
-            # if selected_option == "Crear Usuario":
-            #     crear_usuario()
             if selected_option == "Visualizar Ventas":
                 visualiza_ventas()
             if selected_option == "Nuevo Pedido":
                 ingresaPedidoFunda(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Pedidos de Fundas":
                 visualiza_pedidos_fundas()
-            # if selected_option == "Nuevo Servicio Tecnico":
-            #     ingresa_arreglo_tecnico(st.session_state.id_usuario)
+            if selected_option == "Nuevo Servicio Tecnico":
+                ingresa_servicio_tecnico(st.session_state.id_usuario)
             # if selected_option == "Visualizar Servicios Tecnicos":
             #     visualizar_arreglos()
+            # if selected_option == "Crear Usuario":
+            #     crear_usuario()
             # if selected_option == "Visualizar Usuarios":
             #     visualizar_usuarios()
 
@@ -112,8 +113,8 @@ def main():
                 ingresaPedidoFunda(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Pedidos de Fundas":
                 visualiza_pedidos_fundas()
-            # if selected_option == "Nuevo Servicio Tecnico":
-            #     ingresa_arreglo_tecnico(st.session_state.id_usuario)
+            if selected_option == "Nuevo Servicio Tecnico":
+                ingresa_servicio_tecnico(st.session_state.id_usuario)
             # if selected_option == "Visualizar Servicios Tecnicos":
             #     visualizar_arreglos()      
 

@@ -1,9 +1,9 @@
 import streamlit as st
-import pyodbc
 import json
 import boto3
 import io
 import pandas as pd
+import os
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -63,7 +63,7 @@ def ingresaPedidoFunda(nombre_usuario):
     pedido = st.text_input("Pedido:")
     nombreCliente = st.text_input("Nombre del Cliente:")
     contacto = st.text_input("Contacto:")
-    estado = st.selectbox("Estado:", ["Señado", "Pedido", "Avisado", "Entregado", "Cancelado"])
+    estado = st.selectbox("Estado:", ["Señado", "Sin Seña", "Pedido", "Avisado", "Entregado", "Cancelado"])
 
     # Campo adicional para el monto de señal si el estado es "Señado"
     monto_sena = None
