@@ -124,6 +124,9 @@ def visualiza_pedidos_fundas():
     if filtro_estado != "Todos":
         pedidos_df = pedidos_df[pedidos_df['Estado'] == filtro_estado]
 
+    # Ordenar el DataFrame por 'idVenta' en orden descendente
+    pedidos_df = pedidos_df.sort_values(by='ID', ascending=False)
+
     # Mostrar la tabla de pedidos de fundas
     st.dataframe(pedidos_df)
 

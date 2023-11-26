@@ -96,7 +96,7 @@ def main():
             if selected_option == "Visualizar Pedidos de Fundas":
                 visualiza_pedidos_fundas()
             if selected_option == "Nuevo Servicio Tecnico":
-                ingresa_servicio_tecnico(st.session_state.id_usuario)
+                ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Servicios Tecnicos":
                 visualiza_arreglos()
             # if selected_option == "Crear Usuario":
@@ -115,7 +115,7 @@ def main():
             if selected_option == "Visualizar Pedidos de Fundas":
                 visualiza_pedidos_fundas()
             if selected_option == "Nuevo Servicio Tecnico":
-                ingresa_servicio_tecnico(st.session_state.id_usuario)
+                ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Servicios Tecnicos":
                 visualiza_arreglos()      
 

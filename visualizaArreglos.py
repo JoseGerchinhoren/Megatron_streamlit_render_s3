@@ -5,6 +5,9 @@ import boto3
 import io
 import pandas as pd
 import os
+from PIL import Image
+from PIL import UnidentifiedImageError
+import requests
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -29,7 +32,12 @@ def visualiza_arreglos_tecnicos():
 
     # Cambiar los nombres de las columnas según la modificación en el CSV
     arreglos_df.columns = ["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla", "Tipo de Desbloqueo",
-                           "Contraseña", "Imagen del Patrón", "Estado", "Observaciones", "Nombre de Usuario"]
+                           "Contraseña", "Estado", "Observaciones", "Nombre de Usuario","Imagen del Patrón"]
+    
+    # Cambiar el orden de las columnas según el nuevo orden deseado
+    arreglos_df = arreglos_df[["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla",  "Estado", "Tipo de Desbloqueo",
+                    "Contraseña", "Observaciones", "Nombre de Usuario"]]
+    
 
     # Agregar un filtro por estado
     estados = arreglos_df['Estado'].unique()
@@ -38,8 +46,16 @@ def visualiza_arreglos_tecnicos():
     if filtro_estado != "Todos":
         arreglos_df = arreglos_df[arreglos_df['Estado'] == filtro_estado]
 
+    # Ordenar el DataFrame por 'idVenta' en orden descendente
+    arreglos_df = arreglos_df.sort_values(by='ID', ascending=False)
+
     # Mostrar la tabla de arreglos técnicos
     st.dataframe(arreglos_df)
+
+    # Botón para ver la imagen del patrón de desbloqueo
+    id_arreglo_ver_imagen = st.text_input("Ingrese el ID del arreglo técnico para ver la imagen del patrón:")
+    if st.button("Ver Imagen del Patrón") and id_arreglo_ver_imagen:
+        mostrar_imagen_patron(int(id_arreglo_ver_imagen))
 
 def editar_estado_arreglo_tecnico():
     st.title("Editar Estado de Arreglo Técnico")
@@ -54,12 +70,12 @@ def editar_estado_arreglo_tecnico():
         arreglos_df = pd.read_csv(response['Body'])
 
         # Filtrar el DataFrame para obtener el arreglo técnico específico por ID
-        arreglos_editar_df = arreglos_df[arreglos_df['ID'] == int(id_arreglo_editar)]
+        arreglos_editar_df = arreglos_df[arreglos_df['idArreglo'] == int(id_arreglo_editar)]
 
         if not arreglos_editar_df.empty:
             # Mostrar campo para editar el estado
             nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["En Proceso", "Terminado", "Cancelado"], index=0)
-            arreglos_editar_df.loc[arreglos_editar_df.index[0], 'Estado'] = nuevo_estado
+            arreglos_editar_df.loc[arreglos_editar_df.index[0], 'estado'] = nuevo_estado
 
             # Botón para guardar los cambios
             if st.button("Guardar cambios"):
@@ -75,6 +91,31 @@ def editar_estado_arreglo_tecnico():
 
         else:
             st.warning(f"No se encontró ningun arreglo técnico con el ID {id_arreglo_editar}")
+
+def mostrar_imagen_patron(id_arreglo):
+    try:
+        # Leer el archivo CSV desde S3
+        csv_file_key = 'arreglosTecnicos.csv'
+        response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
+        arreglos_df = pd.read_csv(io.BytesIO(response['Body'].read()))
+
+        # Filtrar el DataFrame para obtener el arreglo específico por ID
+        arreglo_seleccionado = arreglos_df[arreglos_df['idArreglo'] == id_arreglo].iloc[0]
+
+        # Verificar si el arreglo tiene una imagen de patrón
+        imagen_patron_url = arreglo_seleccionado['imagenPatron']
+        if imagen_patron_url:
+            st.title("Imagen de Patrón de Desbloqueo")
+            try:
+                imagen_patron = Image.open(requests.get(imagen_patron_url, stream=True).raw)
+                st.image(imagen_patron, caption="Imagen de Patrón de Desbloqueo", use_column_width=True)
+            except UnidentifiedImageError:
+                st.warning("Este archivo no es una imagen válida.")
+        else:
+            st.warning("Este arreglo no tiene una imagen de patrón de desbloqueo.")
+
+    except Exception as e:
+        st.error(f"Error al mostrar la imagen de patrón: {e}")
 
 def main():
     visualiza_arreglos_tecnicos()
