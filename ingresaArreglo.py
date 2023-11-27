@@ -5,6 +5,8 @@ import boto3
 import io
 import pandas as pd
 import os
+from streamlit_drawable_canvas import st_canvas
+from PIL import Image
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -67,7 +69,7 @@ def ingresa_servicio_tecnico(nombre_usuario):
     contacto = st.text_input("Contacto:")
     modelo = st.text_input("Modelo:")
     falla = st.text_input("Falla:")
-    
+
     # Opciones para el tipo de desbloqueo
     opciones_tipo_desbloqueo = ["Sin Contraseña", "Contraseña o Pin", "Patron"]
     tipo_desbloqueo = st.selectbox("Tipo de Desbloqueo:", opciones_tipo_desbloqueo)
@@ -80,7 +82,26 @@ def ingresa_servicio_tecnico(nombre_usuario):
     # Campo adicional para el patrón de desbloqueo si se selecciona la opción correspondiente
     imagen_patron = None
     if tipo_desbloqueo == "Patron":
-        imagen_patron = st.file_uploader("Imagen del Patrón:")
+        st.warning("Dibuja el patrón:")
+        
+        # Cargar una imagen de fondo para el canvas (puedes cambiar la URL a la imagen que desees)
+        background_image = "https://example.com/background_image.jpg"
+        
+        # Ajustar el tamaño del canvas según la imagen de fondo
+        canvas_width = 800
+        canvas_height = 400
+
+        imagen_patron = st_canvas(
+            fill_color="rgba(255, 165, 0, 0.3)",
+            stroke_width=10,
+            stroke_color="rgb(255, 165, 0)",
+            background_color="#fff",
+            height=canvas_height,
+            width=canvas_width,
+            drawing_mode="freedraw",
+            key="canvas",
+            background_image=background_image,
+        )
 
     estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"])
     observaciones = st.text_area("Observaciones:")
@@ -97,21 +118,27 @@ def ingresa_servicio_tecnico(nombre_usuario):
                                           contraseña, None, estado, observaciones, nombre_usuario)
             elif tipo_desbloqueo == "Patron":
                 if imagen_patron:
-                    imagen_patron_url = guardar_imagen_s3(imagen_patron, nombre_cliente)
+                    # Convertir el dibujo a una imagen y guardarla en S3
+                    imagen_patron_url = guardar_dibujo_s3(imagen_patron, nombre_cliente)
                     insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
                                               None, imagen_patron_url, estado, observaciones, nombre_usuario)
                 else:
-                    st.warning("Por favor, cargue una imagen del patrón.")
+                    st.warning("Por favor, dibuja un patrón.")
         else:
             st.warning("Por favor, complete todos los campos.")
-
-def guardar_imagen_s3(imagen, nombre_cliente):
+            
+def guardar_dibujo_s3(dibujo, nombre_cliente):
     try:
-        bucket_key = f'imagenes/{nombre_cliente}_patron.png'
-        s3.put_object(Body=imagen.read(), Bucket=bucket_name, Key=bucket_key, ContentType='image/png')
+        bucket_key = f'patrones/{nombre_cliente}_patron.png'
+        # Convertir el dibujo a una imagen utilizando PIL
+        imagen_pil = Image.fromarray(dibujo.image_data)
+        # Guardar la imagen en S3
+        with io.BytesIO() as image_buffer:
+            imagen_pil.save(image_buffer, format="PNG")
+            s3.put_object(Body=image_buffer.getvalue(), Bucket=bucket_name, Key=bucket_key, ContentType='image/png')
         return f'https://{bucket_name}.s3.{region_name}.amazonaws.com/{bucket_key}'
     except Exception as e:
-        st.error(f"Error al subir la imagen a S3: {e}")
+        st.error(f"Error al subir el dibujo a S3: {e}")
 
 if __name__ == "__main__":
     ingresa_servicio_tecnico("nombre_de_usuario")

@@ -102,20 +102,20 @@ def mostrar_imagen_patron(id_arreglo):
         # Filtrar el DataFrame para obtener el arreglo específico por ID
         arreglo_seleccionado = arreglos_df[arreglos_df['idArreglo'] == id_arreglo].iloc[0]
 
-        # Verificar si el arreglo tiene una imagen de patrón
-        imagen_patron_url = arreglo_seleccionado['imagenPatron']
-        if imagen_patron_url:
-            st.title("Imagen de Patrón de Desbloqueo")
+        # Verificar si el arreglo tiene un dibujo de patrón
+        dibujo_patron_url = arreglo_seleccionado['imagenPatron']
+        if dibujo_patron_url:
+            st.title("Dibujo del Patrón de Desbloqueo")
             try:
-                imagen_patron = Image.open(requests.get(imagen_patron_url, stream=True).raw)
-                st.image(imagen_patron, caption="Imagen de Patrón de Desbloqueo", use_column_width=True)
-            except UnidentifiedImageError:
-                st.warning("Este archivo no es una imagen válida.")
+                # Mostrar el dibujo directamente desde la URL
+                st.image(dibujo_patron_url, caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
+            except Exception as e:
+                st.warning(f"No se pudo mostrar el dibujo del patrón: {e}")
         else:
-            st.warning("Este arreglo no tiene una imagen de patrón de desbloqueo.")
+            st.warning("Este arreglo no tiene un dibujo de patrón de desbloqueo.")
 
     except Exception as e:
-        st.error(f"Error al mostrar la imagen de patrón: {e}")
+        st.error(f"Error al mostrar el dibujo de patrón: {e}")
 
 def main():
     visualiza_arreglos_tecnicos()
