@@ -83,24 +83,15 @@ def ingresa_servicio_tecnico(nombre_usuario):
     imagen_patron = None
     if tipo_desbloqueo == "Patron":
         st.warning("Dibuja el patrón:")
-        
-        # Cargar una imagen de fondo para el canvas (puedes cambiar la URL a la imagen que desees)
-        background_image = "https://example.com/background_image.jpg"
-        
-        # Ajustar el tamaño del canvas según la imagen de fondo
-        canvas_width = 800
-        canvas_height = 400
-
         imagen_patron = st_canvas(
-            fill_color="rgba(255, 165, 0, 0.3)",
+            fill_color="rgb(0, 255, 255)",  # Cambia aquí al valor de celeste que prefieras
             stroke_width=10,
-            stroke_color="rgb(255, 165, 0)",
-            background_color="#fff",
-            height=canvas_height,
-            width=canvas_width,
+            stroke_color="rgb(0, 255, 255)",  # Cambia aquí al valor de celeste que prefieras
+            background_color="rgb(0, 0, 0)",
+            height=200,
+            width=200,
             drawing_mode="freedraw",
             key="canvas",
-            background_image=background_image,
         )
 
     estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"])
@@ -126,7 +117,7 @@ def ingresa_servicio_tecnico(nombre_usuario):
                     st.warning("Por favor, dibuja un patrón.")
         else:
             st.warning("Por favor, complete todos los campos.")
-            
+
 def guardar_dibujo_s3(dibujo, nombre_cliente):
     try:
         bucket_key = f'patrones/{nombre_cliente}_patron.png'

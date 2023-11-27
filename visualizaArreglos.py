@@ -5,9 +5,6 @@ import boto3
 import io
 import pandas as pd
 import os
-from PIL import Image
-from PIL import UnidentifiedImageError
-import requests
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -53,6 +50,7 @@ def visualiza_arreglos_tecnicos():
     st.dataframe(arreglos_df)
 
     # Botón para ver la imagen del patrón de desbloqueo
+    st.title("Imagenes de Patrones de Desbloqueo")
     id_arreglo_ver_imagen = st.text_input("Ingrese el ID del arreglo técnico para ver la imagen del patrón:")
     if st.button("Ver Imagen del Patrón") and id_arreglo_ver_imagen:
         mostrar_imagen_patron(int(id_arreglo_ver_imagen))
@@ -102,17 +100,20 @@ def mostrar_imagen_patron(id_arreglo):
         # Filtrar el DataFrame para obtener el arreglo específico por ID
         arreglo_seleccionado = arreglos_df[arreglos_df['idArreglo'] == id_arreglo].iloc[0]
 
-        # Verificar si el arreglo tiene un dibujo de patrón
-        dibujo_patron_url = arreglo_seleccionado['imagenPatron']
-        if dibujo_patron_url:
+        # Verificar si el arreglo tiene un dibujo de patrón y el tipo de desbloqueo es "Patron"
+        tiene_patron = arreglo_seleccionado['imagenPatron'] is not None
+        es_patron = arreglo_seleccionado['tipoDesbloqueo'] == 'Patron'
+
+        if tiene_patron and es_patron:
             st.title("Dibujo del Patrón de Desbloqueo")
             try:
-                # Mostrar el dibujo directamente desde la URL
-                st.image(dibujo_patron_url, caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
+                # Mostrar el dibujo con un ancho personalizado
+                ancho_columna = st.columns([0.2, 0.4])
+                ancho_columna[0].image(arreglo_seleccionado['imagenPatron'], caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
             except Exception as e:
                 st.warning(f"No se pudo mostrar el dibujo del patrón: {e}")
         else:
-            st.warning("Este arreglo no tiene un dibujo de patrón de desbloqueo.")
+            st.warning("Este arreglo no tiene un dibujo de patrón de desbloqueo o el tipo de desbloqueo no es 'Patron'.")
 
     except Exception as e:
         st.error(f"Error al mostrar el dibujo de patrón: {e}")
