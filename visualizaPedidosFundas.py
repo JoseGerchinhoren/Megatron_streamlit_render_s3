@@ -117,6 +117,15 @@ def visualiza_pedidos_fundas():
     # Cambiar los nombres de las columnas
     pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña", "Nombre de Usuario"]
 
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    pedidos_df['ID'] = pedidos_df['ID'].astype(str).str.replace(',', '')
+
+    # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
+    pedidos_df['Contacto'] = pedidos_df['Contacto'].astype(str).str.replace(',', '')
+
+    # Convertir la columna "Monto Seña" a tipo cadena y eliminar las comas
+    pedidos_df['Monto Seña'] = pedidos_df['Monto Seña'].astype(str).str.replace(',', '')
+
     # Agregar un filtro por estado
     estados = pedidos_df['Estado'].unique()
     filtro_estado = st.selectbox("Filtrar por Estado:", ["Todos"] + list(estados))

@@ -31,10 +31,15 @@ def visualiza_servicios_tecnicos():
     servicios_df.columns = ["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla", "Tipo de Desbloqueo",
                            "Contraseña", "Estado", "Observaciones", "Nombre de Usuario","Imagen del Patrón"]
     
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    servicios_df['ID'] = servicios_df['ID'].astype(str).str.replace(',', '')
+
+    # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
+    servicios_df['Contacto'] = servicios_df['Contacto'].astype(str).str.replace(',', '')
+
     # Cambiar el orden de las columnas según el nuevo orden deseado
     servicios_df = servicios_df[["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla",  "Estado", "Tipo de Desbloqueo",
                     "Contraseña", "Observaciones", "Nombre de Usuario"]]
-    
 
     # Agregar un filtro por estado
     estados = servicios_df['Estado'].unique()
@@ -50,7 +55,7 @@ def visualiza_servicios_tecnicos():
     st.dataframe(servicios_df)
 
     # Botón para ver la imagen del patrón de desbloqueo
-    st.title("Imágenes de Patrones de Desbloqueo")
+    st.title("Ver Imagen de Patron de Desbloqueo")
     id_servicio_ver_imagen = st.text_input("Ingrese el ID del servicio técnico para ver la imagen del patrón:")
     if st.button("Ver Imagen del Patrón") and id_servicio_ver_imagen:
         mostrar_imagen_patron(int(id_servicio_ver_imagen))
@@ -72,11 +77,11 @@ def editar_estado_servicio_tecnico():
 
         if not servicios_editar_df.empty:
             # Mostrar campo para editar el estado
-            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["En Proceso", "Terminado", "Cancelado"], index=0)
+            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=0)
             servicios_editar_df.loc[servicios_editar_df.index[0], 'estado'] = nuevo_estado
 
             # Botón para guardar los cambios
-            if st.button("Guardar cambios"):
+            if st.button("Guardar Estado"):
                 # Actualizar el DataFrame original con los cambios realizados
                 servicios_df.update(servicios_editar_df)
 
@@ -102,14 +107,14 @@ def mostrar_imagen_patron(id_servicio):
 
         # Verificar si el servicio tiene un dibujo de patrón y el tipo de desbloqueo es "Patrón"
         tiene_patron = servicio_seleccionado['imagenPatron'] is not None
-        es_patron = servicio_seleccionado['Tipo de Desbloqueo'] == 'Patrón'
+        es_patron = servicio_seleccionado['tipoDesbloqueo'] == 'Patron'
 
         if tiene_patron and es_patron:
             st.title("Dibujo del Patrón de Desbloqueo")
             try:
                 # Mostrar el dibujo con un ancho personalizado
                 ancho_columna = st.columns([0.2, 0.4])
-                ancho_columna[0].image(servicio_seleccionado['Imagen del Patrón'], caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
+                ancho_columna[0].image(servicio_seleccionado['imagenPatron'], caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
             except Exception as e:
                 st.warning(f"No se pudo mostrar el dibujo del patrón: {e}")
         else:

@@ -38,6 +38,12 @@ def visualiza_ventas():
     # Renombrar columnas y cambiar el orden
     ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Nombre de Usuario'}, inplace=True)
 
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    ventas_df['ID'] = ventas_df['ID'].astype(str).str.replace(',', '')
+
+    # Convertir la columna "Precio" a tipo cadena y eliminar las comas
+    ventas_df['Precio'] = ventas_df['Precio'].astype(str).str.replace(',', '')
+
     # Construir la expresión booleana en función de los filtros
     fecha_filtro = None
     if st.sidebar.checkbox("Ventas del día"):
@@ -69,6 +75,9 @@ def visualiza_ventas():
 
     # Mostrar la tabla de ventas
     st.dataframe(ventas_df)
+
+    # Convertir la columna "Precio" a tipo numérico
+    ventas_df['Precio'] = pd.to_numeric(ventas_df['Precio'], errors='coerce')
 
     # Calcular y mostrar estadísticas
     total_precios = int(ventas_df["Precio"].sum())  # Convertir a número entero

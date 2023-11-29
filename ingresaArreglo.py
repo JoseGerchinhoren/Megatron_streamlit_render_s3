@@ -18,31 +18,25 @@ aws_secret_key = config["aws_secret_key"]
 region_name = config["region_name"]
 bucket_name = config["bucket_name"]
 
-# # Configura tus credenciales y la región de AWS desde variables de entorno
-# aws_access_key = os.getenv('aws_access_key_id')
-# aws_secret_key = os.getenv('aws_secret_access_key')
-# region_name = os.getenv('aws_region')
-# bucket_name = 'megatron-accesorios'
-
-# Conecta a S3
+# Conectar a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar un servicio técnico en la base de datos
 def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario):
     try:
         # Leer el archivo CSV desde S3
-        csv_file_key = 'arreglosTecnicos.csv'
+        csv_file_key = 'serviciosTecnicos.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
         servicios_df = pd.read_csv(io.BytesIO(response['Body'].read()))
 
-        # Obtener el último idArreglo
-        ultimo_id = servicios_df['idArreglo'].max()
+        # Obtener el último idServicio
+        ultimo_id = servicios_df['idServicio'].max()
 
-        # Si no hay registros, asignar 1 como idArreglo, de lo contrario, incrementar el último idArreglo
+        # Si no hay registros, asignar 1 como idServicio, de lo contrario, incrementar el último idServicio
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idArreglo': nuevo_id, 'fecha': fecha, 'nombreCliente': nombre_cliente, 'contacto': contacto,
+        nueva_fila = {'idServicio': nuevo_id, 'fecha': fecha, 'nombreCliente': nombre_cliente, 'contacto': contacto,
                       'modelo': modelo, 'falla': falla, 'tipoDesbloqueo': tipo_desbloqueo, 'contraseña': contraseña,
                       'imagenPatron': imagen_patron, 'estado': estado, 'observaciones': observaciones,
                       'nombreUsuario': nombre_usuario}

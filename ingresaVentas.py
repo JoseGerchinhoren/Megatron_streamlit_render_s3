@@ -34,6 +34,9 @@ def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
         ventas_df = pd.read_csv(io.BytesIO(response['Body'].read()))
 
+        # Forzar el tipo de dato de la columna 'precio' a enteros
+        ventas_df['precio'] = ventas_df['precio'].astype(int, errors='ignore')
+
         # Obtener el último idVenta
         ultimo_id = ventas_df['idVenta'].max()
 
@@ -55,7 +58,7 @@ def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
 
     except Exception as e:
         st.error(f"Error al registrar la venta: {e}")
-
+        
 def venta(nombre_usuario):
     st.title("Registrar Venta")
 
