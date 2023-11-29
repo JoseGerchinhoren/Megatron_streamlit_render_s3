@@ -111,7 +111,13 @@ def editar_ventas():
 
                 # Mostrar campos para editar cada variable
                 for column in venta_editar_df.columns:
-                    nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
+                    if column == "metodoPago":
+                        nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
+                    elif column == "nombreUsuario":
+                        nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["usuario", "admin"], index=["usuario", "admin"].index(venta_editar_df.iloc[0][column]))
+                    else:
+                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
+                    
                     venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios

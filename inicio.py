@@ -9,6 +9,7 @@ from ingresaPedidoFunda import ingresaPedidoFunda
 from visualizaPedidosFundas import main as visualiza_pedidos_fundas
 from ingresaArreglo import ingresa_servicio_tecnico
 from visualizaArreglos import main as visualiza_arreglos
+from ingresaUsuarios import ingresa_usuario
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -99,8 +100,8 @@ def main():
                 ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Servicios Tecnicos":
                 visualiza_arreglos()
-            # if selected_option == "Crear Usuario":
-            #     crear_usuario()
+            if selected_option == "Crear Usuario":
+                ingresa_usuario()
             # if selected_option == "Visualizar Usuarios":
             #     visualizar_usuarios()
 

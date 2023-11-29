@@ -20,8 +20,13 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar un nuevo usuario en la base de datos
-def insertar_usuario(nombre_apellido, email, contraseña, fecha_nacimiento, dni, domicilio, fecha_creacion, rol):
+def insertar_usuario(nombre_apellido, email, contraseña, confirmar_contraseña, fecha_nacimiento, dni, domicilio, fecha_creacion, rol):
     try:
+        # Verificar si las contraseñas coinciden
+        if contraseña != confirmar_contraseña:
+            st.warning("Las contraseñas no coinciden. Por favor, inténtelo de nuevo.")
+            return
+
         # Leer el archivo CSV desde S3
         csv_file_key = 'usuarios.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
@@ -58,6 +63,7 @@ def ingresa_usuario():
     nombre_apellido = st.text_input("Nombre y Apellido:")
     email = st.text_input("Email:")
     contraseña = st.text_input("Contraseña:", type="password")
+    confirmar_contraseña = st.text_input("Confirmar Contraseña:", type="password")
     fecha_nacimiento = st.date_input("Fecha de Nacimiento:")
     dni = st.text_input("DNI:")
     domicilio = st.text_input("Domicilio:")
@@ -65,12 +71,12 @@ def ingresa_usuario():
     # El campo 'fecha_creacion' se asigna automáticamente a la fecha actual
     fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    rol = st.selectbox("Rol:", ["Empleado", "Admin"])
+    rol = st.selectbox("Rol:", ["usuario", "admin"])
 
     # Botón para registrar el nuevo usuario
     if st.button("Registrar Usuario"):
-        if nombre_apellido and email and contraseña and fecha_nacimiento and dni and domicilio and rol:
-            insertar_usuario(nombre_apellido, email, contraseña, fecha_nacimiento, dni, domicilio, fecha_creacion, rol)
+        if nombre_apellido and email and contraseña and confirmar_contraseña and fecha_nacimiento and dni and domicilio and rol:
+            insertar_usuario(nombre_apellido, email, contraseña, confirmar_contraseña, fecha_nacimiento, dni, domicilio, fecha_creacion, rol)
         else:
             st.warning("Por favor, complete todos los campos.")
 

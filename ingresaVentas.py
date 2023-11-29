@@ -43,8 +43,11 @@ def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
         # Si no hay registros, asignar 1 como idVenta, de lo contrario, incrementar el último idVenta
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
+        # Convertir la fecha a formato string
+        fecha_str = fecha.strftime("%Y-%m-%d %H:%M:%S.%f")
+
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'nombreUsuario': nombre_usuario}
+        nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha_str, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'nombreUsuario': nombre_usuario}
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         ventas_df = pd.concat([ventas_df, pd.DataFrame([nueva_fila])], ignore_index=True)
