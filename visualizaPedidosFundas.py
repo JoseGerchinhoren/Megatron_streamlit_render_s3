@@ -28,7 +28,7 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def editar_estado_pedido():
-    st.title("Editar Estado de Pedido")
+    st.header("Editar Estado de Pedido")
 
     # Agregar un campo para ingresar el idPedido
     id_pedido_editar = st.text_input("Ingrese el ID del pedido del que desea editar el estado:")
@@ -63,7 +63,7 @@ def editar_estado_pedido():
             st.warning(f"No se encontró ningun pedido con el ID {id_pedido_editar}")
 
 def editar_pedido():
-    st.title("Editar Pedido")
+    st.header("Editar Pedido")
 
     # Agregar un campo para ingresar el idVenta
     id_pedido_editar = st.text_input("Ingrese el ID del pedido que desea editar:")
@@ -107,7 +107,7 @@ def editar_pedido():
             st.warning("No tienes permisos para editar pedidos.")
 
 def visualiza_pedidos_fundas():
-    st.title("Visualizar Pedidos de Fundas")
+    st.title("Pedidos de Fundas")
 
     # Cargar el archivo pedidosFundas.csv desde S3
     s3_csv_key = 'pedidos.csv'
@@ -116,9 +116,6 @@ def visualiza_pedidos_fundas():
 
     # Cambiar los nombres de las columnas
     pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña", "Nombre de Usuario"]
-
-    # Convertir la columna "ID" a tipo cadena y eliminar las comas
-    pedidos_df['ID'] = pedidos_df['ID'].astype(str).str.replace(',', '')
 
     # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
     pedidos_df['Contacto'] = pedidos_df['Contacto'].astype(str).str.replace(',', '')
@@ -135,6 +132,9 @@ def visualiza_pedidos_fundas():
 
     # Ordenar el DataFrame por 'idVenta' en orden descendente
     pedidos_df = pedidos_df.sort_values(by='ID', ascending=False)
+
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    pedidos_df['ID'] = pedidos_df['ID'].astype(str).str.replace(',', '')
 
     # Mostrar la tabla de pedidos de fundas
     st.dataframe(pedidos_df)

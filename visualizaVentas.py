@@ -28,7 +28,7 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualiza_ventas():
-    st.title("Visualizar Ventas")
+    st.title("Ventas")
 
     # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
     csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
@@ -37,9 +37,6 @@ def visualiza_ventas():
 
     # Renombrar columnas y cambiar el orden
     ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Nombre de Usuario'}, inplace=True)
-
-    # Convertir la columna "ID" a tipo cadena y eliminar las comas
-    ventas_df['ID'] = ventas_df['ID'].astype(str).str.replace(',', '')
 
     # Convertir la columna "Precio" a tipo cadena y eliminar las comas
     ventas_df['Precio'] = ventas_df['Precio'].astype(str).str.replace(',', '')
@@ -73,6 +70,9 @@ def visualiza_ventas():
     # Ordenar el DataFrame por 'idVenta' en orden descendente
     ventas_df = ventas_df.sort_values(by='ID', ascending=False)
 
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    ventas_df['ID'] = ventas_df['ID'].astype(str).str.replace(',', '')
+
     # Mostrar la tabla de ventas
     st.dataframe(ventas_df)
 
@@ -81,14 +81,14 @@ def visualiza_ventas():
 
     # Calcular y mostrar estadísticas
     total_precios = int(ventas_df["Precio"].sum())  # Convertir a número entero
-    st.title(f"Total de Ventas: ${total_precios}")
+    st.subheader(f"Total de Ventas: ${total_precios}")
 
     for metodo_pago in ventas_df["Método de Pago"].unique():
         total_metodo_pago = ventas_df[ventas_df["Método de Pago"] == metodo_pago]["Precio"].sum()
         st.write(f"Total en {metodo_pago}: ${int(total_metodo_pago)}")  # Convertir a número entero
 
 def editar_ventas():
-    st.title("Editar Ventas")
+    st.header("Editar Ventas")
 
     # Agregar un campo para ingresar el idVenta
     id_venta_editar = st.text_input("Ingrese el ID de la Venta que desea editar:")

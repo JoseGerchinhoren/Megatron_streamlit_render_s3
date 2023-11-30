@@ -20,7 +20,7 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualiza_servicios_tecnicos():
-    st.title("Visualizar Servicios Técnicos")
+    st.title("Servicios Técnicos")
 
     # Cargar el archivo serviciosTecnicos.csv desde S3
     s3_csv_key = 'serviciosTecnicos.csv'
@@ -30,9 +30,6 @@ def visualiza_servicios_tecnicos():
     # Cambiar los nombres de las columnas según la modificación en el CSV
     servicios_df.columns = ["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla", "Tipo de Desbloqueo",
                            "Contraseña", "Estado", "Observaciones", "Nombre de Usuario","Imagen del Patrón"]
-    
-    # Convertir la columna "ID" a tipo cadena y eliminar las comas
-    servicios_df['ID'] = servicios_df['ID'].astype(str).str.replace(',', '')
 
     # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
     servicios_df['Contacto'] = servicios_df['Contacto'].astype(str).str.replace(',', '')
@@ -51,17 +48,20 @@ def visualiza_servicios_tecnicos():
     # Ordenar el DataFrame por 'ID' en orden descendente
     servicios_df = servicios_df.sort_values(by='ID', ascending=False)
 
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    servicios_df['ID'] = servicios_df['ID'].astype(str).str.replace(',', '')
+
     # Mostrar la tabla de servicios técnicos
     st.dataframe(servicios_df)
 
     # Botón para ver la imagen del patrón de desbloqueo
-    st.title("Ver Imagen de Patron de Desbloqueo")
+    st.header("Ver Imagen de Patron de Desbloqueo")
     id_servicio_ver_imagen = st.text_input("Ingrese el ID del servicio técnico para ver la imagen del patrón:")
     if st.button("Ver Imagen del Patrón") and id_servicio_ver_imagen:
         mostrar_imagen_patron(int(id_servicio_ver_imagen))
 
 def editar_estado_servicio_tecnico():
-    st.title("Editar Estado de Servicio Técnico")
+    st.header("Editar Estado de Servicio Técnico")
 
     # Agregar un campo para ingresar el ID del servicio
     id_servicio_editar = st.text_input("Ingrese el ID del servicio técnico que desea editar el estado:")
@@ -110,7 +110,7 @@ def mostrar_imagen_patron(id_servicio):
         es_patron = servicio_seleccionado['tipoDesbloqueo'] == 'Patron'
 
         if tiene_patron and es_patron:
-            st.title("Dibujo del Patrón de Desbloqueo")
+            st.subheader("Dibujo del Patrón de Desbloqueo")
             try:
                 # Mostrar el dibujo con un ancho personalizado
                 ancho_columna = st.columns([0.2, 0.4])
@@ -125,7 +125,7 @@ def mostrar_imagen_patron(id_servicio):
 
 def editar_servicio_tecnico():
 
-    st.title("Editar Servicio Técnico")
+    st.header("Editar Servicio Técnico")
 
     # Agregar un campo para ingresar el ID del servicio
     id_servicio_editar = st.text_input("Ingrese el ID del servicio técnico que desea editar:")
