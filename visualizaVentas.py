@@ -113,8 +113,6 @@ def editar_ventas():
                 for column in venta_editar_df.columns:
                     if column == "metodoPago":
                         nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
-                    elif column == "nombreUsuario":
-                        nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["usuario", "admin"], index=["usuario", "admin"].index(venta_editar_df.iloc[0][column]))
                     else:
                         nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
                     

@@ -66,12 +66,20 @@ def ingresa_usuario():
     confirmar_contraseña = st.text_input("Confirmar Contraseña:", type="password")
     fecha_nacimiento = st.date_input("Fecha de Nacimiento:")
     dni = st.text_input("DNI:")
+    if dni:
+        if dni.isdigit():
+            dni = int(dni)
+        else:
+            st.warning("El dni debe ser un número entero.")
+            dni = None
+    else:
+        dni = None
     domicilio = st.text_input("Domicilio:")
     
     # El campo 'fecha_creacion' se asigna automáticamente a la fecha actual
-    fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_creacion = datetime.now().strftime("%Y-%m-%d")
     
-    rol = st.selectbox("Rol:", ["usuario", "admin"])
+    rol = st.selectbox("Rol:", ["empleado", "admin"])
 
     # Botón para registrar el nuevo usuario
     if st.button("Registrar Usuario"):

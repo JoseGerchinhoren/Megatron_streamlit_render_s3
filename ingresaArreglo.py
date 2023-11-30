@@ -22,7 +22,7 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar un servicio técnico en la base de datos
-def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario):
+def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario, precio=None, metodo_pago=None):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'serviciosTecnicos.csv'
@@ -39,7 +39,7 @@ def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, ti
         nueva_fila = {'idServicio': nuevo_id, 'fecha': fecha, 'nombreCliente': nombre_cliente, 'contacto': contacto,
                       'modelo': modelo, 'falla': falla, 'tipoDesbloqueo': tipo_desbloqueo, 'contraseña': contraseña,
                       'imagenPatron': imagen_patron, 'estado': estado, 'observaciones': observaciones,
-                      'nombreUsuario': nombre_usuario}
+                      'nombreUsuario': nombre_usuario, 'precio': precio, 'metodoPago': metodo_pago}
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         servicios_df = pd.concat([servicios_df, pd.DataFrame([nueva_fila])], ignore_index=True)
@@ -89,24 +89,41 @@ def ingresa_servicio_tecnico(nombre_usuario):
         )
 
     estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"])
+
+    # Verificar si el estado es "Terminado" para mostrar los campos adicionales
+    if estado == "Terminado":
+        precio = st.text_input("Precio:")
+        if precio:
+            if precio.isdigit():
+                precio = int(precio)
+            else:
+                st.warning("El precio debe ser un número entero.")
+                precio = None
+        else:
+            precio = None
+        metodo_pago = st.selectbox("Método de Pago:", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"])
+    else:
+        precio = None
+        metodo_pago = None
+
     observaciones = st.text_area("Observaciones:")
 
     # Botón para registrar el servicio técnico
     if st.button("Registrar Servicio Técnico"):
         if fecha and nombre_cliente and contacto and modelo and falla and tipo_desbloqueo and estado:
-            # Ajuste para manejar la contraseña y el patrón
+            # Ajuste para manejar la contraseña, el patrón, el precio y el método de pago
             if tipo_desbloqueo == "Sin Contraseña":
                 insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
-                                          None, None, estado, observaciones, nombre_usuario)
+                                        None, None, estado, observaciones, nombre_usuario, precio, metodo_pago)
             elif tipo_desbloqueo == "Contraseña o Pin":
                 insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
-                                          contraseña, None, estado, observaciones, nombre_usuario)
+                                        contraseña, None, estado, observaciones, nombre_usuario, precio, metodo_pago)
             elif tipo_desbloqueo == "Patron":
                 if imagen_patron:
                     # Convertir el dibujo a una imagen y guardarla en S3
                     imagen_patron_url = guardar_dibujo_s3(imagen_patron, nombre_cliente)
                     insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
-                                              None, imagen_patron_url, estado, observaciones, nombre_usuario)
+                                            None, imagen_patron_url, estado, observaciones, nombre_usuario, precio, metodo_pago)
                 else:
                     st.warning("Por favor, dibuja un patrón.")
         else:

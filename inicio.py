@@ -10,6 +10,7 @@ from visualizaPedidosFundas import main as visualiza_pedidos_fundas
 from ingresaArreglo import ingresa_servicio_tecnico
 from visualizaArreglos import main as visualiza_arreglos
 from ingresaUsuarios import ingresa_usuario
+from visualizaUsuarios import main as visualizar_usuarios
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -102,8 +103,8 @@ def main():
                 visualiza_arreglos()
             if selected_option == "Crear Usuario":
                 ingresa_usuario()
-            # if selected_option == "Visualizar Usuarios":
-            #     visualizar_usuarios()
+            if selected_option == "Visualizar Usuarios":
+                visualizar_usuarios()
 
         else:
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos"])

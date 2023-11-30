@@ -29,13 +29,16 @@ def visualiza_servicios_tecnicos():
 
     # Cambiar los nombres de las columnas según la modificación en el CSV
     servicios_df.columns = ["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla", "Tipo de Desbloqueo",
-                           "Contraseña", "Estado", "Observaciones", "Nombre de Usuario","Imagen del Patrón"]
+                           "Contraseña", "Estado", "Precio", "Metodo de Pago", "Observaciones", "Nombre de Usuario","Imagen del Patrón"]
 
     # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
     servicios_df['Contacto'] = servicios_df['Contacto'].astype(str).str.replace(',', '')
 
+    # Convertir la columna "Precio" a tipo numérico
+    servicios_df['Precio'] = servicios_df['Precio'].astype(str).str.replace(',', '')
+
     # Cambiar el orden de las columnas según el nuevo orden deseado
-    servicios_df = servicios_df[["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla",  "Estado", "Tipo de Desbloqueo",
+    servicios_df = servicios_df[["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla",  "Estado", "Precio", "Metodo de Pago", "Tipo de Desbloqueo",
                     "Contraseña", "Observaciones", "Nombre de Usuario"]]
 
     # Agregar un filtro por estado
@@ -77,8 +80,25 @@ def editar_estado_servicio_tecnico():
 
         if not servicios_editar_df.empty:
             # Mostrar campo para editar el estado
-            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=0)
+            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["Aceptado", "Consulta", "Tecnico", "En Local", "Terminado", "Cancelado"], index=0)
             servicios_editar_df.loc[servicios_editar_df.index[0], 'estado'] = nuevo_estado
+
+            if nuevo_estado == "Terminado":
+                # Si el estado es "Terminado", mostrar campos adicionales
+                precio = st.text_input("Precio:")
+                if precio:
+                    if precio.isdigit():
+                        precio = int(precio)
+                    else:
+                        st.warning("El precio debe ser un número entero.")
+                        precio = None
+                else:
+                    precio = None
+                nuevo_metodo_pago = st.selectbox("Seleccione el método de pago:", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=0)
+
+                # Actualizar las columnas adicionales en el DataFrame
+                servicios_editar_df.loc[servicios_editar_df.index[0], 'precio'] = precio
+                servicios_editar_df.loc[servicios_editar_df.index[0], 'metodoPago'] = nuevo_metodo_pago
 
             # Botón para guardar los cambios
             if st.button("Guardar Estado"):
