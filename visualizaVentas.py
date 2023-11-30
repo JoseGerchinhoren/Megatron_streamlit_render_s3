@@ -133,12 +133,43 @@ def editar_ventas():
             else:
                 st.warning(f"No se encontró ninguna venta con el ID {id_venta_editar}")
         else:
-            st.warning("No tienes permisos para editar ventas.")
+            # Verificar si la venta se realizó en el día actual
+            fecha_venta_actual = venta_editar_df.iloc[0]['fecha']  # Asumiendo que tienes una columna llamada 'fechaVenta'
+            fecha_actual = datetime.now().strftime("%Y-%m-%d")
+
+            if fecha_venta_actual == fecha_actual:
+                # Permitir editar solo si la venta es del día actual
+                st.write("Información actual de la venta:")
+                st.dataframe(venta_editar_df)
+
+                # Mostrar campos para editar cada variable
+                for column in venta_editar_df.columns:
+                    if column != 'idVenta' and column != 'nombreUsuario' and column != 'fecha':
+                        if column == "metodoPago":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
+                        else:
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
+
+                        venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
+
+                # Botón para guardar los cambios
+                if st.button("Guardar cambios"):
+                    # Actualizar el DataFrame original con los cambios realizados
+                    ventas_df.update(venta_editar_df)
+
+                    # Guardar el DataFrame actualizado en S3
+                    with io.StringIO() as csv_buffer:
+                        ventas_df.to_csv(csv_buffer, index=False)
+                        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
+
+                    st.success("¡Venta actualizada correctamente!")
+            else:
+                st.warning("No tienes permisos para editar ventas que no sean del día actual.")
 
 def main():
     visualiza_ventas()  # Mostrar sección de visualización para todos los usuarios
 
-    editar_ventas()  # Mostrar sección de edición solo para admin
+    editar_ventas()
 
 if __name__ == "__main__":
     main()
