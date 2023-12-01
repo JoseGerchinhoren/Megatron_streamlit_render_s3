@@ -53,14 +53,11 @@ def visualiza_ventas():
     # Aplicar los filtros
     fecha_filtro = None
     st.sidebar.header("Filtro de Ventas del dia")
-    if st.sidebar.checkbox("Aplicar Filtro de Ventas del día"):
+
+    # Utilizar el argumento value para activar el checkbox por defecto
+    if st.sidebar.checkbox("Aplicar Filtro de Ventas del día", value=True):
         fecha_seleccionada = st.sidebar.date_input("Seleccione la fecha", datetime.today())
         fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
-    st.sidebar.header("Filtro de Ventas del mes")
-    if st.sidebar.checkbox("Aplicar Filtro de Ventas del mes"):
-        first_day_of_month = datetime.today().replace(day=1).strftime('%Y-%m-%d')
-        last_day_of_month = (datetime.today().replace(day=1, month=datetime.today().month + 1) - timedelta(days=1)).strftime('%Y-%m-%d')
-        fecha_filtro = (first_day_of_month, last_day_of_month)
 
     st.sidebar.header("Filtrar por nombre de Usuario")
     nombre_usuario = st.sidebar.text_input("Nombre de Usuario", key="nombre_usuario")
@@ -91,13 +88,15 @@ def visualiza_ventas():
     # Convertir la columna "Precio" a tipo numérico
     ventas_df['Precio'] = pd.to_numeric(ventas_df['Precio'], errors='coerce')
 
-    # Calcular y mostrar estadísticas
-    total_precios = int(ventas_df["Precio"].sum())  # Convertir a número entero
-    st.subheader(f"Total de Ventas: ${total_precios}")
+    # Verificar si se han aplicado filtros antes de mostrar estadísticas
+    if aplicar_filtro_rango_fechas or fecha_filtro or nombre_usuario:
+        # Calcular y mostrar estadísticas
+        total_precios = int(ventas_df["Precio"].sum())  # Convertir a número entero
+        st.subheader(f"Total de Ventas: ${total_precios}")
 
-    for metodo_pago in ventas_df["Método de Pago"].unique():
-        total_metodo_pago = ventas_df[ventas_df["Método de Pago"] == metodo_pago]["Precio"].sum()
-        st.write(f"Total en {metodo_pago}: ${int(total_metodo_pago)}")  # Convertir a número entero
+        for metodo_pago in ventas_df["Método de Pago"].unique():
+            total_metodo_pago = ventas_df[ventas_df["Método de Pago"] == metodo_pago]["Precio"].sum()
+            st.write(f"Total en {metodo_pago}: ${int(total_metodo_pago)}")  # Convertir a número entero
 
 def editar_ventas():
     st.header("Editar Ventas")
