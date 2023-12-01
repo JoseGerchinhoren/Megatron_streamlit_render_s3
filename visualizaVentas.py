@@ -16,13 +16,11 @@ aws_secret_key = config["aws_secret_key"]
 region_name = config["region_name"]
 bucket_name = config["bucket_name"]
 
-
 # # Configura tus credenciales y la región de AWS desde variables de entorno
 # aws_access_key = os.getenv('aws_access_key_id')
 # aws_secret_key = os.getenv('aws_secret_access_key')
 # region_name = os.getenv('aws_region')
 # bucket_name = 'megatron-accesorios'
-
 
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
@@ -41,17 +39,31 @@ def visualiza_ventas():
     # Convertir la columna "Precio" a tipo cadena y eliminar las comas
     ventas_df['Precio'] = ventas_df['Precio'].astype(str).str.replace(',', '')
 
-    # Construir la expresión booleana en función de los filtros
+    # Filtros
+    st.sidebar.header("Filtrar por Rango de Fechas")
+    aplicar_filtro_rango_fechas = st.sidebar.checkbox("Aplicar filtro de rango de fechas", key="filtro_rango_fechas")
+
+    if aplicar_filtro_rango_fechas:
+        fecha_inicio = st.sidebar.date_input("Fecha de Inicio", datetime.today().replace(day=1))
+        fecha_fin = st.sidebar.date_input("Fecha de Fin", datetime.today())
+        rango_fechas_filtro = (fecha_inicio.strftime('%Y-%m-%d'), fecha_fin.strftime('%Y-%m-%d'))
+        ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
+        ventas_df = ventas_df[(ventas_df['Fecha'] >= rango_fechas_filtro[0]) & (ventas_df['Fecha'] <= rango_fechas_filtro[1])]
+
+    # Aplicar los filtros
     fecha_filtro = None
-    if st.sidebar.checkbox("Ventas del día"):
+    st.sidebar.header("Filtro de Ventas del dia")
+    if st.sidebar.checkbox("Aplicar Filtro de Ventas del día"):
         fecha_seleccionada = st.sidebar.date_input("Seleccione la fecha", datetime.today())
         fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
-    elif st.sidebar.checkbox("Ventas del mes"):
+    st.sidebar.header("Filtro de Ventas del mes")
+    if st.sidebar.checkbox("Aplicar Filtro de Ventas del mes"):
         first_day_of_month = datetime.today().replace(day=1).strftime('%Y-%m-%d')
         last_day_of_month = (datetime.today().replace(day=1, month=datetime.today().month + 1) - timedelta(days=1)).strftime('%Y-%m-%d')
         fecha_filtro = (first_day_of_month, last_day_of_month)
 
-    nombre_usuario = st.sidebar.text_input("Filtrar por nombre de Usuario", key="nombre_usuario")
+    st.sidebar.header("Filtrar por nombre de Usuario")
+    nombre_usuario = st.sidebar.text_input("Nombre de Usuario", key="nombre_usuario")
 
     # Aplicar filtros
     if fecha_filtro:
@@ -59,7 +71,7 @@ def visualiza_ventas():
         ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
 
     if nombre_usuario:
-        ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == (nombre_usuario)]
+        ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == nombre_usuario]
 
     # Asegurarse de que la columna 'Fecha' sea de tipo datetime
     ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
