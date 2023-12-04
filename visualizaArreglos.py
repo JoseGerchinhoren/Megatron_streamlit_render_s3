@@ -133,9 +133,11 @@ def mostrar_imagen_patron(id_servicio):
         if tiene_patron and es_patron:
             st.subheader("Dibujo del Patrón de Desbloqueo")
             try:
+                # Obtener la URL del dibujo del patrón
+                url_imagen_patron = servicio_seleccionado['imagenPatron']
+
                 # Mostrar el dibujo con un ancho personalizado
-                ancho_columna = st.columns([0.2, 0.4])
-                ancho_columna[0].image(servicio_seleccionado['imagenPatron'], caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
+                st.image(url_imagen_patron, caption="Dibujo del Patrón de Desbloqueo", use_column_width=True)
             except Exception as e:
                 st.warning(f"No se pudo mostrar el dibujo del patrón: {e}")
         else:
