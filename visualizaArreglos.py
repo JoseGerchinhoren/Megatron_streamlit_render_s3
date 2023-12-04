@@ -1,5 +1,4 @@
 import streamlit as st
-import pyodbc
 import json
 import boto3
 import io
