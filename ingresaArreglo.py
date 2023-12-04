@@ -55,7 +55,7 @@ def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, ti
         st.error(f"Error al registrar el servicio técnico: {e}")
 
 def ingresa_servicio_tecnico(nombre_usuario):
-    st.title("Registrar Servicio Técnico")
+    st.title("""Nuevo Servicio Técnico \n * Ingrese los detalles del servicio técnico, incluyendo nombre del cliente, contacto, modelo, falla, tipo de desbloqueo y estado. \n * Si se selecciona 'Contraseña o Pin' se habilita un campo para ingresar la contraseña o pin. \n * Si se selecciona 'Patron' se habilita un campo para realizar el dibujo del patron de desbloqueo. \n * Complete la información requerida y presione 'Registrar Servicio Técnico'.""")
 
     # Campos para ingresar los datos del servicio técnico
     fecha = st.date_input("Fecha del Servicio Técnico:")
@@ -106,7 +106,7 @@ def ingresa_servicio_tecnico(nombre_usuario):
         precio = None
         metodo_pago = None
 
-    observaciones = st.text_area("Observaciones:")
+    observaciones = st.text_input("Observaciones:")
 
     # Botón para registrar el servicio técnico
     if st.button("Registrar Servicio Técnico"):

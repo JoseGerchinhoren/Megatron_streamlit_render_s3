@@ -107,7 +107,9 @@ def editar_pedido():
             st.warning("No tienes permisos para editar pedidos.")
 
 def visualiza_pedidos_fundas():
-    st.title("Pedidos de Fundas")
+    st.title("""Visualizar Pedidos \n * Visualice todos los pedidos y filtre por estado \n * Edite el estado del pedido ingresando el ID correspondiente. \n * Para editar un pedido, solo para administradores, ingrese el ID del pedido, modifique los campos y presione 'Guardar cambios'.""")
+
+    st.header("Pedidos")
 
     # Cargar el archivo pedidosFundas.csv desde S3
     s3_csv_key = 'pedidos.csv'

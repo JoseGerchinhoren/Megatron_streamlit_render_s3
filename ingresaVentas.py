@@ -63,7 +63,7 @@ def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
         st.error(f"Error al registrar la venta: {e}")
         
 def venta(nombre_usuario):
-    st.title("Registrar Venta")
+    st.title("""Registrar Venta \n * Ingrese el nombre del producto, el precio en números enteros y seleccione el método de pago.\n * Presione 'Registrar Venta' para guardar la información de la nueva venta.""")
 
     # Campos para ingresar los datos de la venta
     if st.session_state.user_rol == "admin":

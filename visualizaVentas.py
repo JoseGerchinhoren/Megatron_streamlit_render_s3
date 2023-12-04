@@ -26,7 +26,9 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualiza_ventas():
-    st.title("Ventas")
+    st.title("""Visualizar Ventas\n * Por defecto se muestran las ventas del día. \n * Para aplicar filtros adicionales, despliegue el menú de la izquierda. Puede filtrar por rango de fechas o por nombre de usuario. \n * Para editar las ventas ingrese el ID correspondiente y modifique los campos deseados. Luego, presione 'Guardar cambios'. Los usuarios sin permisos de administrador solo pueden editar las vetas del día actual.""")
+
+    st.header("Ventas")
 
     # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
     csv_file_key = 'ventas.csv'  # Cambiado a minúsculas

@@ -56,7 +56,7 @@ def insertar_pedido(fecha,pedido,nombreCliente,contacto,estado,montoSeña,nombre
         st.error(f"Error al registrar el pedido: {e}")
 
 def ingresaPedidoFunda(nombre_usuario):
-    st.title("Registrar Pedido")
+    st.title("""Nuevo Pedido \n * Ingrese la descripción del pedido, el nombre del cliente, un numero o email de contacto y seleccione el estado del pedido. \n * Si el estado es 'Señado', ingrese el monto de la seña.""")
 
     # Campos para ingresar los datos del pedido de funda
     fecha = st.date_input("Fecha del Pedido:")

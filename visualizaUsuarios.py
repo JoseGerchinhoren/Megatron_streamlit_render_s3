@@ -18,7 +18,9 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualizar_usuarios():
-    st.title("Visualizar Usuarios")
+    st.title("""Visualizar Usuarios \n * Visualice la informacion de los usuarios, salvo la contraseña. \n * Edite la información del usuario ingresando el ID correspondiente y modifique los campos necesarios. \n * Presione 'Guardar cambios' para confirmar las modificaciones.""")
+
+    st.header("Usuarios")
 
     # Cargar el archivo usuarios.csv desde S3
     s3_csv_key = 'usuarios.csv'
@@ -38,7 +40,7 @@ def visualizar_usuarios():
     st.dataframe(usuarios_df)
 
 def editar_usuario():
-    st.title("Editar Usuario")
+    st.header("Editar Usuario")
 
     # Campo para ingresar el idUsuario del usuario que se desea editar
     id_usuario_editar = st.text_input("Ingrese el ID del usuario que desea editar:")

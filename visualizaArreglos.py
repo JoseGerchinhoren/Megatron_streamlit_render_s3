@@ -20,7 +20,9 @@ bucket_name = config["bucket_name"]
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualiza_servicios_tecnicos():
-    st.title("Servicios Técnicos")
+    st.title("""Visualizar Servicios Técnicos \n * Visualice todos los servicios técnicos y filtre por estado. \n * Busque la imagen del patrón de desbloqueo ingresando el ID y presionando 'Ver Imagen del Patrón'. \n * Edite el estado del servicio técnico ingresando el ID correspondiente.""")
+
+    st.header("Servicios Técnicos")
 
     # Cargar el archivo serviciosTecnicos.csv desde S3
     s3_csv_key = 'serviciosTecnicos.csv'
@@ -56,12 +58,6 @@ def visualiza_servicios_tecnicos():
 
     # Mostrar la tabla de servicios técnicos
     st.dataframe(servicios_df)
-
-    # Botón para ver la imagen del patrón de desbloqueo
-    st.header("Ver Imagen de Patron de Desbloqueo")
-    id_servicio_ver_imagen = st.text_input("Ingrese el ID del servicio técnico para ver la imagen del patrón:")
-    if st.button("Ver Imagen del Patrón") and id_servicio_ver_imagen:
-        mostrar_imagen_patron(int(id_servicio_ver_imagen))
 
 def editar_estado_servicio_tecnico():
     st.header("Editar Estado de Servicio Técnico")
@@ -188,6 +184,12 @@ def main():
     visualiza_servicios_tecnicos()
 
     editar_estado_servicio_tecnico()
+
+    # Botón para ver la imagen del patrón de desbloqueo
+    st.header("Ver Imagen de Patron de Desbloqueo")
+    id_servicio_ver_imagen = st.text_input("Ingrese el ID del servicio técnico para ver la imagen del patrón:")
+    if st.button("Ver Imagen del Patrón") and id_servicio_ver_imagen:
+        mostrar_imagen_patron(int(id_servicio_ver_imagen))
 
     # Verificar si el usuario es admin
     if st.session_state.user_rol == "admin":
