@@ -6,6 +6,7 @@ import pandas as pd
 import os
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
+import uuid
 
 # # Cargar configuración desde el archivo config.json
 # with open("../config.json") as config_file:
@@ -27,7 +28,7 @@ bucket_name = 'megatron-accesorios'
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar un servicio técnico en la base de datos
-def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario, precio=None, metodo_pago=None):
+def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario, precio, metodo_pago):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'serviciosTecnicos.csv'
@@ -136,14 +137,24 @@ def ingresa_servicio_tecnico(nombre_usuario):
 
 def guardar_dibujo_s3(dibujo, nombre_cliente):
     try:
-        bucket_key = f'patrones/{nombre_cliente}_patron.png'
+        # Generar un identificador único
+        identificador_universal = str(uuid.uuid4())
+        
+        # Incorporar el identificador único al nombre del archivo
+        nombre_archivo = f'{nombre_cliente}_{identificador_universal}_patron.png'
+        
+        bucket_key = f'patrones/{nombre_archivo}'
+        
         # Convertir el dibujo a una imagen utilizando PIL
         imagen_pil = Image.fromarray(dibujo.image_data)
+        
         # Guardar la imagen en S3
         with io.BytesIO() as image_buffer:
             imagen_pil.save(image_buffer, format="PNG")
             s3.put_object(Body=image_buffer.getvalue(), Bucket=bucket_name, Key=bucket_key, ContentType='image/png')
+        
         return f'https://{bucket_name}.s3.{region_name}.amazonaws.com/{bucket_key}'
+    
     except Exception as e:
         st.error(f"Error al subir el dibujo a S3: {e}")
 
