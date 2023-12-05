@@ -6,27 +6,27 @@ import io
 from datetime import datetime, timedelta
 import json
 
-# # Cargar configuración desde el archivo config.json
-# with open("../config.json") as config_file:
-#     config = json.load(config_file)
+# Cargar configuración desde el archivo config.json
+with open("../config.json") as config_file:
+    config = json.load(config_file)
 
-# # Desempaquetar las credenciales desde el archivo de configuración
-# aws_access_key = config["aws_access_key"]
-# aws_secret_key = config["aws_secret_key"]
-# region_name = config["region_name"]
-# bucket_name = config["bucket_name"]
+# Desempaquetar las credenciales desde el archivo de configuración
+aws_access_key = config["aws_access_key"]
+aws_secret_key = config["aws_secret_key"]
+region_name = config["region_name"]
+bucket_name = config["bucket_name"]
 
-# Configura tus credenciales y la región de AWS desde variables de entorno
-aws_access_key = os.getenv('aws_access_key_id')
-aws_secret_key = os.getenv('aws_secret_access_key')
-region_name = os.getenv('aws_region')
-bucket_name = 'megatron-accesorios'
+# # Configura tus credenciales y la región de AWS desde variables de entorno
+# aws_access_key = os.getenv('aws_access_key_id')
+# aws_secret_key = os.getenv('aws_secret_access_key')
+# region_name = os.getenv('aws_region')
+# bucket_name = 'megatron-accesorios'
 
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualiza_ventas():
-    st.title("""Visualizar Ventas\n * Por defecto se muestran las ventas del día. \n * Para aplicar filtros adicionales, despliegue el menú de la izquierda. Puede filtrar por rango de fechas o por nombre de usuario. \n * Para editar las ventas ingrese el ID correspondiente y modifique los campos deseados. Luego, presione 'Guardar cambios'. Los usuarios sin permisos de administrador solo pueden editar las vetas del día actual.""")
+    st.title("""Visualizar Ventas\n * Por defecto se muestran las ventas del día, para ver todas las ventas quite el filtro en el menu de la izquierda. \n * Para aplicar filtros adicionales, despliegue el menú de la izquierda. Puede filtrar por rango de fechas o por nombre de usuario. \n * Para editar las ventas ingrese el ID correspondiente y modifique los campos deseados. Luego, presione 'Guardar cambios'. Los usuarios sin permisos de administrador solo pueden editar las vetas del día actual.""")
 
     st.header("Ventas")
 
