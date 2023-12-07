@@ -132,7 +132,7 @@ def editar_ventas():
                     venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
-                if st.button("Guardar cambios"):
+                if st.button("Guardar modificacion"):
                     # Actualizar el DataFrame original con los cambios realizados
                     ventas_df.update(venta_editar_df)
 
@@ -166,7 +166,7 @@ def editar_ventas():
                         venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
-                if st.button("Guardar cambios"):
+                if st.button("Guardar modificacion"):
                     # Actualizar el DataFrame original con los cambios realizados
                     ventas_df.update(venta_editar_df)
 

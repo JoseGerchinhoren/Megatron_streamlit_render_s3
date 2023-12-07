@@ -4,6 +4,7 @@ import boto3
 import io
 import pandas as pd
 import os
+import datetime
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -154,39 +155,73 @@ def editar_servicio_tecnico():
     # Agregar un campo para ingresar el ID del servicio
     id_servicio_editar = st.text_input("Ingrese el ID del servicio técnico que desea editar:")
 
-    if id_servicio_editar :
+    if id_servicio_editar:
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'serviciosTecnicos.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
         servicios_df = pd.read_csv(response['Body'])
 
         # Filtrar el DataFrame para obtener el servicio técnico específico por ID
-        servicios_editar_df = servicios_df[servicios_df['idServicio'] == int(id_servicio_editar)]
+        servicio_editar_df = servicios_df[servicios_df['idServicio'] == int(id_servicio_editar)]
 
-        if not servicios_editar_df.empty:
-            # Mostrar la información actual del servicio técnico
-            st.write("Información actual del servicio técnico:")
-            st.dataframe(servicios_editar_df)
+        # Verificar si el usuario es admin
+        if st.session_state.user_rol == "admin":
+            if not servicio_editar_df.empty:
+                # Mostrar la información actual del servicio técnico
+                st.write("Información actual del servicio técnico:")
+                st.dataframe(servicio_editar_df)
 
-            # Mostrar campos para editar cada variable
-            for column in servicios_editar_df.columns:
-                nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=servicios_editar_df.iloc[0][column])
-                servicios_editar_df.at[servicios_editar_df.index[0], column] = nuevo_valor
+                # Mostrar campos para editar cada variable
+                for column in servicio_editar_df.columns:
+                    # No permitir editar idServicio
+                    if column not in ['idServicio']:
+                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=servicio_editar_df.iloc[0][column])
+                        servicio_editar_df.at[servicio_editar_df.index[0], column] = nuevo_valor
 
-            # Botón para guardar los cambios
-            if st.button("Guardar cambios"):
-                # Actualizar el DataFrame original con los cambios realizados
-                servicios_df.update(servicios_editar_df)
+                # Botón para guardar los cambios
+                if st.button("Guardar modificacion"):
+                    # Actualizar el DataFrame original con los cambios realizados
+                    servicios_df.update(servicio_editar_df)
 
-                # Guardar el DataFrame actualizado en S3
-                with io.StringIO() as csv_buffer:
-                    servicios_df.to_csv(csv_buffer, index=False)
-                    s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
+                    # Guardar el DataFrame actualizado en S3
+                    with io.StringIO() as csv_buffer:
+                        servicios_df.to_csv(csv_buffer, index=False)
+                        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
 
-                st.success("¡Servicio técnico actualizado correctamente!")
+                    st.success("¡Servicio técnico actualizado correctamente!")
 
+            else:
+                st.warning(f"No se encontró ningún servicio técnico con el ID {id_servicio_editar}")
         else:
-            st.warning(f"No se encontró ningún servicio técnico con el ID {id_servicio_editar}")
+            # Verificar si la fecha del servicio es la actual
+            fecha_servicio_actual = servicio_editar_df.iloc[0]['fecha']  # Asumiendo que tienes una columna llamada 'fechaServicio'
+            fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+
+            if fecha_servicio_actual == fecha_actual:
+                # Permitir editar solo si el servicio es del día actual
+                st.write("Información actual del servicio técnico:")
+                st.dataframe(servicio_editar_df)
+
+                # Mostrar campos para editar cada variable
+                for column in servicio_editar_df.columns:
+                    # No permitir editar idServicio
+                    if column not in ['idServicio', 'fecha', 'nombreUsuario', 'imagenPatron']:
+                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=servicio_editar_df.iloc[0][column])
+                        servicio_editar_df.at[servicio_editar_df.index[0], column] = nuevo_valor
+
+                # Botón para guardar los cambios
+                if st.button("Guardar modificacion"):
+                    # Actualizar el DataFrame original con los cambios realizados
+                    servicios_df.update(servicio_editar_df)
+
+                    # Guardar el DataFrame actualizado en S3
+                    with io.StringIO() as csv_buffer:
+                        servicios_df.to_csv(csv_buffer, index=False)
+                        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
+
+                    st.success("¡Servicio técnico actualizado correctamente!")
+            else:
+                st.warning("No tienes permisos para editar servicios que no sean del día actual.")
 
 def main():
     visualiza_servicios_tecnicos()
@@ -200,8 +235,7 @@ def main():
         mostrar_imagen_patron(int(id_servicio_ver_imagen))
 
     # Verificar si el usuario es admin
-    if st.session_state.user_rol == "admin":
-        editar_servicio_tecnico()
+    editar_servicio_tecnico()
 
 if __name__ == "__main__":
     main()

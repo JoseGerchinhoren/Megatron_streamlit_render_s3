@@ -4,6 +4,7 @@ import json
 import boto3
 import os
 import io
+import datetime
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -62,7 +63,7 @@ def editar_estado_pedido():
 def editar_pedido():
     st.header("Editar Pedido")
 
-    # Agregar un campo para ingresar el idVenta
+    # Agregar un campo para ingresar el idPedido
     id_pedido_editar = st.text_input("Ingrese el ID del pedido que desea editar:")
 
     if id_pedido_editar:
@@ -71,25 +72,27 @@ def editar_pedido():
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
         pedidos_df = pd.read_csv(response['Body'])
 
-        # Filtrar el DataFrame para obtener la venta específica por ID
-        pedidos_editar_df = pedidos_df[pedidos_df['idPedido'] == int(id_pedido_editar)]
+        # Filtrar el DataFrame para obtener el pedido específico por ID
+        pedido_editar_df = pedidos_df[pedidos_df['idPedido'] == int(id_pedido_editar)]
 
-        # Verificar si el usuario es admin
+        # Verificar si el usuario es admin o si la edición es del día actual
         if st.session_state.user_rol == "admin":
-            if not pedidos_editar_df.empty:
-                # Mostrar la información actual de la venta
-                st.write("Información actual de la venta:")
-                st.dataframe(pedidos_editar_df)
+            if not pedido_editar_df.empty:
+                # Mostrar la información actual del pedido
+                st.write("Información actual del pedido:")
+                st.dataframe(pedido_editar_df)
 
                 # Mostrar campos para editar cada variable
-                for column in pedidos_editar_df.columns:
-                    nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedidos_editar_df.iloc[0][column])
-                    pedidos_editar_df.at[pedidos_editar_df.index[0], column] = nuevo_valor
+                for column in pedido_editar_df.columns:
+                    # No permitir editar idPedido
+                    if column not in ['idPedido']:
+                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedido_editar_df.iloc[0][column])
+                        pedido_editar_df.at[pedido_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
-                if st.button("Guardar cambios"):
+                if st.button("Guardar modificacion"):
                     # Actualizar el DataFrame original con los cambios realizados
-                    pedidos_df.update(pedidos_editar_df)
+                    pedidos_df.update(pedido_editar_df)
 
                     # Guardar el DataFrame actualizado en S3
                     with io.StringIO() as csv_buffer:
@@ -99,9 +102,38 @@ def editar_pedido():
                     st.success("¡Pedido actualizado correctamente!")
 
             else:
-                st.warning(f"No se encontró ningun pedido con el ID {id_pedido_editar}")
+                st.warning(f"No se encontró ningún pedido con el ID {id_pedido_editar}")
+
         else:
-            st.warning("No tienes permisos para editar pedidos.")
+            # Verificar si la edición es del día actual
+            fecha_pedido_actual = pedido_editar_df.iloc[0]['fecha']  # Asumiendo que tienes una columna llamada 'fechaPedido'
+            fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+
+            if fecha_pedido_actual == fecha_actual:
+                # Permitir editar solo si el pedido es del día actual
+                st.write("Información actual del pedido:")
+                st.dataframe(pedido_editar_df)
+
+                # Mostrar campos para editar cada variable
+                for column in pedido_editar_df.columns:
+                    # No permitir editar idPedido, fecha y nombreUsuario
+                    if column not in ['idPedido', 'fecha', 'nombreUsuario']:
+                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedido_editar_df.iloc[0][column])
+                        pedido_editar_df.at[pedido_editar_df.index[0], column] = nuevo_valor
+
+                # Botón para guardar los cambios
+                if st.button("Guardar modificacion"):
+                    # Actualizar el DataFrame original con los cambios realizados
+                    pedidos_df.update(pedido_editar_df)
+
+                    # Guardar el DataFrame actualizado en S3
+                    with io.StringIO() as csv_buffer:
+                        pedidos_df.to_csv(csv_buffer, index=False)
+                        s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=csv_file_key)
+
+                    st.success("¡Pedido actualizado correctamente!")
+            else:
+                st.warning("No tienes permisos para editar pedidos que no sean del día actual.")
 
 def visualiza_pedidos_fundas():
     st.title("""Visualizar Pedidos \n * Visualice todos los pedidos y filtre por estado \n * Edite el estado del pedido ingresando el ID correspondiente. \n * Para editar un pedido, solo para administradores, ingrese el ID del pedido, modifique los campos y presione 'Guardar cambios'.""")
@@ -143,9 +175,7 @@ def main():
 
     editar_estado_pedido()
 
-    # Verificar si el usuario es admin
-    if st.session_state.user_rol == "admin":
-        editar_pedido()
+    editar_pedido()
 
 if __name__ == "__main__":
     main()

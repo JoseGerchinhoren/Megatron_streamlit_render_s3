@@ -89,7 +89,7 @@ def main():
         st.sidebar.title("Menú")
 
         if user_rol == "admin":
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
             if selected_option == "Nueva Venta":
                 venta(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Ventas":
@@ -111,7 +111,7 @@ def main():
                 texto_inicio()
 
         else:
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos de Fundas", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos"])
             if selected_option == "Nueva Venta":
                 venta(st.session_state.user_nombre_apellido)
             if selected_option == "Visualizar Ventas":
