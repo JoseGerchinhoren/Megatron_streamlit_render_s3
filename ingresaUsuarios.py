@@ -10,17 +10,17 @@ import os
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Desempaquetar las credenciales desde el archivo de configuración
-aws_access_key = config["aws_access_key"]
-aws_secret_key = config["aws_secret_key"]
-region_name = config["region_name"]
-bucket_name = config["bucket_name"]
+# # Desempaquetar las credenciales desde el archivo de configuración
+# aws_access_key = config["aws_access_key"]
+# aws_secret_key = config["aws_secret_key"]
+# region_name = config["region_name"]
+# bucket_name = config["bucket_name"]
 
-# # Configura tus credenciales y la región de AWS desde variables de entorno
-# aws_access_key = os.getenv('aws_access_key_id')
-# aws_secret_key = os.getenv('aws_secret_access_key')
-# region_name = os.getenv('aws_region')
-# bucket_name = 'megatron-accesorios'
+# Configura tus credenciales y la región de AWS desde variables de entorno
+aws_access_key = os.getenv('aws_access_key_id')
+aws_secret_key = os.getenv('aws_secret_access_key')
+region_name = os.getenv('aws_region')
+bucket_name = 'megatron-accesorios'
 
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
