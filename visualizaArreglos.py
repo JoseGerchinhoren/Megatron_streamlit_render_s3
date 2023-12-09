@@ -34,17 +34,14 @@ def visualiza_servicios_tecnicos():
     # Cargar el archivo serviciosTecnicos.csv desde S3
     s3_csv_key = 'serviciosTecnicos.csv'
     csv_obj = s3.get_object(Bucket=bucket_name, Key=s3_csv_key)
-    servicios_df = pd.read_csv(csv_obj['Body'])
+    servicios_df = pd.read_csv(
+    io.BytesIO(csv_obj['Body'].read()),
+    dtype={'contacto': str, 'idServicio': int, 'precio': float, 'contraseña': str}
+    ).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Cambiar los nombres de las columnas según la modificación en el CSV
     servicios_df.columns = ["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla", "Tipo de Desbloqueo",
                            "Contraseña", "Estado", "Precio", "Metodo de Pago", "Observaciones", "Nombre de Usuario","Imagen del Patrón"]
-
-    # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
-    servicios_df['Contacto'] = servicios_df['Contacto'].astype(str).str.replace(',', '')
-
-    # Convertir la columna "Precio" a tipo numérico
-    servicios_df['Precio'] = servicios_df['Precio'].astype(str).str.replace(',', '')
 
     # Cambiar el orden de las columnas según el nuevo orden deseado
     servicios_df = servicios_df[["ID", "Fecha", "Nombre del Cliente", "Contacto", "Modelo", "Falla",  "Estado", "Precio", "Metodo de Pago", "Tipo de Desbloqueo",
@@ -56,6 +53,9 @@ def visualiza_servicios_tecnicos():
 
     if filtro_estado != "Todos":
         servicios_df = servicios_df[servicios_df['Estado'] == filtro_estado]
+
+    # Convertir la columna "ID" a tipo int
+    servicios_df['ID'] = servicios_df['ID'].astype(int)
 
     # Ordenar el DataFrame por 'ID' en orden descendente
     servicios_df = servicios_df.sort_values(by='ID', ascending=False)
@@ -160,12 +160,13 @@ def editar_servicio_tecnico():
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'serviciosTecnicos.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
+        servicios_df = pd.read_csv(
+        io.BytesIO(response['Body'].read()),
+        dtype={'contacto': str, 'idServicio': int, 'precio': float, 'contraseña': str}
+        ).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
-        # Modificar la forma en que se lee el CSV para interpretar la columna de contacto como cadena
-        servicios_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'contacto': str})
-
-        # Filtrar el DataFrame para obtener el servicio técnico específico por ID
-        servicio_editar_df = servicios_df[servicios_df['idServicio'] == int(id_servicio_editar)]
+        # Filtrar el DataFrame para obtener el arreglo específico por ID
+        servicio_editar_df = servicios_df[servicios_df['idServicio'].astype(str) == str(id_servicio_editar)]
 
         # Verificar si el usuario es admin
         if st.session_state.user_rol == "admin":

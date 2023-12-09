@@ -32,7 +32,7 @@ def visualizar_usuarios():
     # Cargar el archivo usuarios.csv desde S3
     s3_csv_key = 'usuarios.csv'
     csv_obj = s3.get_object(Bucket=bucket_name, Key=s3_csv_key)
-    usuarios_df = pd.read_csv(io.BytesIO(csv_obj['Body'].read()))
+    usuarios_df = pd.read_csv(io.BytesIO(csv_obj['Body'].read()), dtype={'idUsuario': int, 'dni': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Cambiar los nombres de las columnas si es necesario
     usuarios_df.columns = ["ID", "Nombre y Apellido", "Email", "contraseña", "Fecha de Nacimiento", "DNI", "Domicilio", "Fecha de Creacion", "Rol"]
@@ -40,8 +40,14 @@ def visualizar_usuarios():
     # Cambiar el orden de las columnas según el nuevo orden deseado
     usuarios_df = usuarios_df[["ID", "Nombre y Apellido", "Email", "Fecha de Nacimiento", "DNI", "Domicilio", "Fecha de Creacion", "Rol"]]
 
+    # Convertir la columna "ID" a tipo int
+    usuarios_df['ID'] = usuarios_df['ID'].astype(int)
+
     # Ordenar el DataFrame por 'idVenta' en orden descendente
     usuarios_df = usuarios_df.sort_values(by='ID', ascending=False)
+
+    # Convertir la columna "ID" a tipo cadena y eliminar las comas
+    usuarios_df['ID'] = usuarios_df['ID'].astype(str).str.replace(',', '')
 
     # Mostrar la tabla de usuarios
     st.dataframe(usuarios_df)
@@ -56,10 +62,10 @@ def editar_usuario():
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'usuarios.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-        usuarios_df = pd.read_csv(io.BytesIO(response['Body'].read()))
+        usuarios_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'idUsuario': int, 'dni': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
-        # Filtrar el DataFrame para obtener el usuario específico por ID
-        usuario_editar_df = usuarios_df[usuarios_df['idUsuario'] == int(id_usuario_editar)]
+        # Filtrar el DataFrame para obtener el arreglo específico por ID
+        usuario_editar_df = usuarios_df[usuarios_df['idUsuario'].astype(str) == str(id_usuario_editar)]
 
         # Verificar si se encontró un usuario con el ID proporcionado
         if not usuario_editar_df.empty:

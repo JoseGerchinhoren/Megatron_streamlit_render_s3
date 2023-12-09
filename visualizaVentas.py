@@ -33,7 +33,7 @@ def visualiza_ventas():
     # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
     csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
     response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-    ventas_df = pd.read_csv(response['Body'])
+    ventas_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'idVenta': int, 'precio': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Renombrar columnas y cambiar el orden
     ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Nombre de Usuario'}, inplace=True)
@@ -78,6 +78,9 @@ def visualiza_ventas():
     # Formatear las fechas antes de mostrar el DataFrame
     ventas_df['Fecha'] = ventas_df['Fecha'].dt.strftime('%Y-%m-%d')
 
+    # Convertir la columna "ID" a tipo int
+    ventas_df['ID'] = ventas_df['ID'].astype(int)
+
     # Ordenar el DataFrame por 'idVenta' en orden descendente
     ventas_df = ventas_df.sort_values(by='ID', ascending=False)
 
@@ -110,10 +113,10 @@ def editar_ventas():
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-        ventas_df = pd.read_csv(response['Body'])
+        ventas_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'idVenta': int, 'precio': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
-        # Filtrar el DataFrame para obtener la venta específica por ID
-        venta_editar_df = ventas_df[ventas_df['idVenta'] == int(id_venta_editar)]
+        # Filtrar el DataFrame para obtener el pedido específico por ID
+        venta_editar_df = ventas_df[ventas_df['idVenta'].astype(str) == str(id_venta_editar)]
 
         # Verificar si el usuario es admin
         if st.session_state.user_rol == "admin":
@@ -124,12 +127,13 @@ def editar_ventas():
 
                 # Mostrar campos para editar cada variable
                 for column in venta_editar_df.columns:
-                    if column == "metodoPago":
-                        nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
-                    else:
-                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
-                    
-                    venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
+                    # No permitir editar idPedido
+                    if column not in ['idVenta']:
+                        if column == "metodoPago":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
+                        else:
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
+                            venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
                 if st.button("Guardar modificacion"):

@@ -69,11 +69,11 @@ def editar_pedido():
     if id_pedido_editar:
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'pedidos.csv'
-        response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-        pedidos_df = pd.read_csv(response['Body'])
+        csv_obj = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
+        pedidos_df = pd.read_csv(io.BytesIO(csv_obj['Body'].read()), dtype={'contacto': str, 'idPedido': int, 'montoSeña': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
         # Filtrar el DataFrame para obtener el pedido específico por ID
-        pedido_editar_df = pedidos_df[pedidos_df['idPedido'] == int(id_pedido_editar)]
+        pedido_editar_df = pedidos_df[pedidos_df['idPedido'].astype(str) == str(id_pedido_editar)]
 
         # Verificar si el usuario es admin o si la edición es del día actual
         if st.session_state.user_rol == "admin":
@@ -149,13 +149,10 @@ def visualiza_pedidos_fundas():
     # Cargar el archivo pedidosFundas.csv desde S3
     s3_csv_key = 'pedidos.csv'
     csv_obj = s3.get_object(Bucket=bucket_name, Key=s3_csv_key)
-    pedidos_df = pd.read_csv(csv_obj['Body'])
+    pedidos_df = pd.read_csv(io.BytesIO(csv_obj['Body'].read()), dtype={'contacto': str, 'idPedido': int, 'montoSeña': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Cambiar los nombres de las columnas
     pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña", "Nombre de Usuario"]
-
-    # Convertir la columna "Contacto" a tipo cadena y eliminar las comas
-    pedidos_df['Contacto'] = pedidos_df['Contacto'].astype(str).str.replace(',', '')
 
     # Convertir la columna "Monto Seña" a tipo cadena y eliminar las comas
     pedidos_df['Monto Seña'] = pedidos_df['Monto Seña'].astype(str).str.replace(',', '')
@@ -166,6 +163,9 @@ def visualiza_pedidos_fundas():
 
     if filtro_estado != "Todos":
         pedidos_df = pedidos_df[pedidos_df['Estado'] == filtro_estado]
+
+    # Convertir la columna "ID" a tipo int
+    pedidos_df['ID'] = pedidos_df['ID'].astype(int)
 
     # Ordenar el DataFrame por 'idVenta' en orden descendente
     pedidos_df = pedidos_df.sort_values(by='ID', ascending=False)
