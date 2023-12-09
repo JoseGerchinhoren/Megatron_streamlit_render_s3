@@ -5,9 +5,9 @@ import io
 import pandas as pd
 import os
 
-# Cargar configuración desde el archivo config.json
-with open("../config.json") as config_file:
-    config = json.load(config_file)
+# # Cargar configuración desde el archivo config.json
+# with open("../config.json") as config_file:
+#     config = json.load(config_file)
 
 # # Desempaquetar las credenciales desde el archivo de configuración
 # aws_access_key = config["aws_access_key"]
