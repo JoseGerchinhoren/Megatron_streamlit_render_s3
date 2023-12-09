@@ -127,13 +127,18 @@ def editar_ventas():
 
                 # Mostrar campos para editar cada variable
                 for column in venta_editar_df.columns:
-                    # No permitir editar idPedido
-                    if column not in ['idVenta']:
+                    if column != 'idVenta' and column != 'nombreUsuario' and column != 'fecha':
+                        valor_actual = venta_editar_df.iloc[0][column]
+                        
                         if column == "metodoPago":
-                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
+                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
+                            index_actual = opciones_metodo_pago.index(valor_actual) if valor_actual in opciones_metodo_pago else 0
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", opciones_metodo_pago, index=index_actual)
                         else:
-                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
-                            venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=valor_actual) if valor_actual is not None else st.text_input(f"Nuevo valor para {column}")
+
+                        venta_editar_df.at[venta_editar_df.index[0], column] = nuevo_valor
+
 
                 # Botón para guardar los cambios
                 if st.button("Guardar modificacion"):

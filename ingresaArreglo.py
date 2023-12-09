@@ -155,11 +155,12 @@ def guardar_dibujo_s3(dibujo, nombre_cliente):
         
         # Convertir el dibujo a una imagen utilizando PIL
         imagen_pil = Image.fromarray(dibujo.image_data)
-        
+
+        # Convertir la imagen a bytes
+        imagen_bytes = imagen_pil.tobytes()
+
         # Guardar la imagen en S3
-        with io.BytesIO() as image_buffer:
-            imagen_pil.save(image_buffer, format="PNG")
-            s3.put_object(Body=image_buffer.getvalue(), Bucket=bucket_name, Key=bucket_key, ContentType='image/png')
+        s3.put_object(Body=imagen_bytes, Bucket=bucket_name, Key=bucket_key, ContentType='image/png')
         
         return f'https://{bucket_name}.s3.{region_name}.amazonaws.com/{bucket_key}'
     
