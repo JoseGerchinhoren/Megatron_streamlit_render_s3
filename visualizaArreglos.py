@@ -5,6 +5,7 @@ import io
 import pandas as pd
 import os
 import datetime
+import numpy as np
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -159,7 +160,9 @@ def editar_servicio_tecnico():
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'serviciosTecnicos.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-        servicios_df = pd.read_csv(response['Body'])
+
+        # Modificar la forma en que se lee el CSV para interpretar la columna de contacto como cadena
+        servicios_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'contacto': str})
 
         # Filtrar el DataFrame para obtener el servicio técnico específico por ID
         servicio_editar_df = servicios_df[servicios_df['idServicio'] == int(id_servicio_editar)]
@@ -175,8 +178,18 @@ def editar_servicio_tecnico():
                 for column in servicio_editar_df.columns:
                     # No permitir editar idServicio
                     if column not in ['idServicio']:
-                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=servicio_editar_df.iloc[0][column])
-                        servicio_editar_df.at[servicio_editar_df.index[0], column] = nuevo_valor
+                        if column == "tipoDesbloqueo":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Sin Contraseña", "Contraseña o Pin", "Patron"], index=["Sin Contraseña", "Contraseña o Pin", "Patron"].index(servicio_editar_df.iloc[0][column]))
+                        elif column == "estado":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
+                        elif column == "metodoPago":
+                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro", None]
+                            valor_actual = servicio_editar_df.iloc[0]["metodoPago"]
+                            index_actual = opciones_metodo_pago.index(valor_actual) if not pd.isna(valor_actual) else None
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", opciones_metodo_pago, index=index_actual)
+                        else:
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=str(servicio_editar_df.iloc[0][column]))
+                            servicio_editar_df.at[servicio_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
                 if st.button("Guardar modificacion"):
@@ -206,8 +219,18 @@ def editar_servicio_tecnico():
                 for column in servicio_editar_df.columns:
                     # No permitir editar idServicio
                     if column not in ['idServicio', 'fecha', 'nombreUsuario', 'imagenPatron']:
-                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=servicio_editar_df.iloc[0][column])
-                        servicio_editar_df.at[servicio_editar_df.index[0], column] = nuevo_valor
+                        if column == "tipoDesbloqueo":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Sin Contraseña", "Contraseña o Pin", "Patron"], index=["Sin Contraseña", "Contraseña o Pin", "Patron"].index(servicio_editar_df.iloc[0][column]))
+                        elif column == "estado":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
+                        elif column == "metodoPago":
+                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro", None]
+                            valor_actual = servicio_editar_df.iloc[0]["metodoPago"]
+                            index_actual = opciones_metodo_pago.index(valor_actual) if not pd.isna(valor_actual) else None
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", opciones_metodo_pago, index=index_actual)
+                        else:
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=str(servicio_editar_df.iloc[0][column]))
+                            servicio_editar_df.at[servicio_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
                 if st.button("Guardar modificacion"):

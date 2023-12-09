@@ -96,7 +96,7 @@ def main():
                 visualiza_ventas()
             if selected_option == "Nuevo Pedido":
                 ingresaPedidoFunda(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Pedidos de Fundas":
+            if selected_option == "Visualizar Pedidos":
                 visualiza_pedidos_fundas()
             if selected_option == "Nuevo Servicio Tecnico":
                 ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
@@ -118,7 +118,7 @@ def main():
                 visualiza_ventas()
             if selected_option == "Nuevo Pedido":
                 ingresaPedidoFunda(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Pedidos de Fundas":
+            if selected_option == "Visualizar Pedidos":
                 visualiza_pedidos_fundas()
             if selected_option == "Nuevo Servicio Tecnico":
                 ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)

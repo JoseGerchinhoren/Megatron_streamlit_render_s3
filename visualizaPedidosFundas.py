@@ -86,8 +86,11 @@ def editar_pedido():
                 for column in pedido_editar_df.columns:
                     # No permitir editar idPedido
                     if column not in ['idPedido']:
-                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedido_editar_df.iloc[0][column])
-                        pedido_editar_df.at[pedido_editar_df.index[0], column] = nuevo_valor
+                        if column == "estado":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Señado", "Sin Seña", "Pedido", "Avisado", "Entregado", "Cancelado"], index=["Señado", "Sin Seña", "Pedido", "Avisado", "Entregado", "Cancelado"].index(pedido_editar_df.iloc[0][column]))
+                        else:
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedido_editar_df.iloc[0][column])
+                            pedido_editar_df.at[pedido_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
                 if st.button("Guardar modificacion"):
@@ -118,8 +121,11 @@ def editar_pedido():
                 for column in pedido_editar_df.columns:
                     # No permitir editar idPedido, fecha y nombreUsuario
                     if column not in ['idPedido', 'fecha', 'nombreUsuario']:
-                        nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedido_editar_df.iloc[0][column])
-                        pedido_editar_df.at[pedido_editar_df.index[0], column] = nuevo_valor
+                        if column == "estado":
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Señado", "Sin Seña", "Pedido", "Avisado", "Entregado", "Cancelado"], index=["Señado", "Sin Seña", "Pedido", "Avisado", "Entregado", "Cancelado"].index(pedido_editar_df.iloc[0][column]))
+                        else:
+                            nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=pedido_editar_df.iloc[0][column])
+                            pedido_editar_df.at[pedido_editar_df.index[0], column] = nuevo_valor
 
                 # Botón para guardar los cambios
                 if st.button("Guardar modificacion"):

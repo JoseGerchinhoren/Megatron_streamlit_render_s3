@@ -33,13 +33,18 @@ def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, ti
         # Leer el archivo CSV desde S3
         csv_file_key = 'serviciosTecnicos.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-        servicios_df = pd.read_csv(io.BytesIO(response['Body'].read()))
+
+        # Modificar la forma en que se lee el CSV para interpretar la columna de contacto como cadena
+        servicios_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'contacto': str})
 
         # Obtener el último idServicio
         ultimo_id = servicios_df['idServicio'].max()
 
         # Si no hay registros, asignar 1 como idServicio, de lo contrario, incrementar el último idServicio
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
+
+        # Convertir a entero nuevamente para asegurarse
+        nuevo_id = int(nuevo_id)
 
         # Crear una nueva fila como un diccionario
         nueva_fila = {'idServicio': nuevo_id, 'fecha': fecha, 'nombreCliente': nombre_cliente, 'contacto': contacto,
@@ -49,6 +54,9 @@ def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, ti
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         servicios_df = pd.concat([servicios_df, pd.DataFrame([nueva_fila])], ignore_index=True)
+
+        # Resetear el índice
+        servicios_df.reset_index(drop=True, inplace=True)
 
         # Guardar el DataFrame actualizado de nuevo en S3
         with io.StringIO() as csv_buffer:
