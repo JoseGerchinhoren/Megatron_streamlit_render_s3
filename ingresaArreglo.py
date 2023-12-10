@@ -123,7 +123,7 @@ def ingresa_servicio_tecnico(nombre_usuario):
             elif tipo_desbloqueo == "Patron":
                 if imagen_patron:
                     # Convertir el dibujo a una imagen y guardarla en S3
-                    imagen_patron_url = guardar_dibujo_s3(imagen_patron, nombre_cliente)
+                    imagen_patron_url = guardar_dibujo_s3(imagen_patron, nombre_cliente, region_name)
                     insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
                                             None, imagen_patron_url, estado, observaciones, nombre_usuario, precio, metodo_pago)
                 else:
@@ -131,7 +131,7 @@ def ingresa_servicio_tecnico(nombre_usuario):
         else:
             st.warning("Por favor, complete todos los campos.")
 
-def guardar_dibujo_s3(dibujo, nombre_cliente):
+def guardar_dibujo_s3(dibujo, nombre_cliente, region_name):
     try:
         # Generar un identificador único
         identificador_universal = str(uuid.uuid4())
