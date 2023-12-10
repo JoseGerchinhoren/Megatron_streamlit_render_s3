@@ -24,7 +24,7 @@ def cargar_configuracion():
     # bucket_name = 'megatron-accesorios'
 
     #Configuracion Streamlit
-    aws_access_key = st.secrets["aws_access_key_id"]
+    aws_access_key = st.secrets["aws_access_key"]
     aws_secret_key = st.secrets["aws_secret_key"]
     region_name = st.secrets["region_name"]
     bucket_name = st.secrets["bucket_name"]
