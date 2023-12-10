@@ -172,9 +172,9 @@ def editar_servicio_tecnico():
                         elif column == "estado":
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
                         elif column == "metodoPago":
-                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro", None]
+                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
                             valor_actual = servicio_editar_df.iloc[0]["metodoPago"]
-                            index_actual = opciones_metodo_pago.index(valor_actual) if not pd.isna(valor_actual) else None
+                            index_actual = opciones_metodo_pago.index(valor_actual) if valor_actual in opciones_metodo_pago else 0
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", opciones_metodo_pago, index=index_actual)
                         else:
                             nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=str(servicio_editar_df.iloc[0][column]))
@@ -213,9 +213,9 @@ def editar_servicio_tecnico():
                         elif column == "estado":
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
                         elif column == "metodoPago":
-                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro", None]
+                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
                             valor_actual = servicio_editar_df.iloc[0]["metodoPago"]
-                            index_actual = opciones_metodo_pago.index(valor_actual) if not pd.isna(valor_actual) else None
+                            index_actual = opciones_metodo_pago.index(valor_actual) if valor_actual in opciones_metodo_pago else 0
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", opciones_metodo_pago, index=index_actual)
                         else:
                             nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=str(servicio_editar_df.iloc[0][column]))
