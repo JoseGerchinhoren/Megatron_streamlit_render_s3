@@ -152,7 +152,11 @@ def guardar_dibujo_s3(dibujo, nombre_cliente):
         # Guardar la imagen en S3
         s3.put_object(Body=imagen_bytes, Bucket=bucket_name, Key=bucket_key, ContentType='image/png')
         
-        return f'https://{bucket_name}.s3.{region_name}.amazonaws.com/{bucket_key}'
+        # Construir la URL de la imagen con la región del bucket
+        region = region_name  # Reemplaza con la región correcta
+        url_imagen = f'https://{bucket_name}.s3.{region}.amazonaws.com/{bucket_key}'
+        
+        return url_imagen
     
     except Exception as e:
         st.error(f"Error al subir el dibujo a S3: {e}")
