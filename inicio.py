@@ -13,6 +13,7 @@ from ingresaUsuarios import ingresa_usuario
 from visualizaUsuarios import main as visualizar_usuarios
 from PIL import Image
 from config import cargar_configuracion
+from horario import obtener_fecha_argentina
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -75,6 +76,9 @@ def main():
 
     if logged_in:
         st.sidebar.title("Menú")
+        # Luego, en tu código, puedes usar la función
+        fecha_actual_argentina = obtener_fecha_argentina()
+        st.write(f"La fecha actual en Argentina es: {fecha_actual_argentina}")
 
         if user_rol == "admin":
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
