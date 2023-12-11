@@ -15,8 +15,7 @@ def cargar_configuracion():
     # region_name = config["region_name"]
     # bucket_name = config["bucket_name"]
 
-    #Configuracion Render
-
+    # # Configuracion Render
     # # Configura tus credenciales y la región de AWS desde variables de entorno
     # aws_access_key = os.getenv('aws_access_key_id')
     # aws_secret_key = os.getenv('aws_secret_access_key')
