@@ -6,6 +6,7 @@ import io
 from datetime import datetime, timedelta
 import json
 from config import cargar_configuracion
+from horario import obtener_fecha_argentina
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -99,7 +100,7 @@ def editar_ventas():
 
     if id_venta_editar:
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
-        csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
+        csv_file_key = 'ventas.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
         ventas_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'idVenta': int, 'precio': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
@@ -144,10 +145,10 @@ def editar_ventas():
                 st.warning(f"No se encontró ninguna venta con el ID {id_venta_editar}")
         else:
             # Verificar si la venta se realizó en el día actual
-            fecha_venta_actual = venta_editar_df.iloc[0]['fecha']  # Asumiendo que tienes una columna llamada 'fechaVenta'
-            fecha_actual = datetime.now().strftime("%Y-%m-%d")
+            fecha_venta_actual = venta_editar_df.iloc[0]['fecha']
+            fecha_actual_argentina = obtener_fecha_argentina()  # Obtener la fecha actual en Argentina
 
-            if fecha_venta_actual == fecha_actual:
+            if fecha_venta_actual == fecha_actual_argentina.strftime("%Y-%m-%d"):
                 # Permitir editar solo si la venta es del día actual
                 st.write("Información actual de la venta:")
                 st.dataframe(venta_editar_df)
