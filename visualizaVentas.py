@@ -35,19 +35,19 @@ def visualiza_ventas():
     aplicar_filtro_rango_fechas = st.sidebar.checkbox("Aplicar filtro de rango de fechas", key="filtro_rango_fechas")
 
     if aplicar_filtro_rango_fechas:
-        fecha_inicio = st.sidebar.date_input("Fecha de Inicio", datetime.today().replace(day=1))
-        fecha_fin = st.sidebar.date_input("Fecha de Fin", datetime.today())
+        fecha_inicio = st.sidebar.date_input("Fecha de Inicio", obtener_fecha_argentina().replace(day=1))
+        fecha_fin = st.sidebar.date_input("Fecha de Fin", obtener_fecha_argentina())
         rango_fechas_filtro = (fecha_inicio.strftime('%Y-%m-%d'), fecha_fin.strftime('%Y-%m-%d'))
         ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
         ventas_df = ventas_df[(ventas_df['Fecha'] >= rango_fechas_filtro[0]) & (ventas_df['Fecha'] <= rango_fechas_filtro[1])]
 
     # Aplicar los filtros
     fecha_filtro = None
-    st.sidebar.header("Filtro de Ventas del dia")
+    st.sidebar.header("Filtro de Ventas del día")
 
     # Utilizar el argumento value para activar el checkbox por defecto
     if st.sidebar.checkbox("Aplicar Filtro de Ventas del día", value=True):
-        fecha_seleccionada = st.sidebar.date_input("Seleccione la fecha", datetime.today())
+        fecha_seleccionada = st.sidebar.date_input("Seleccione la fecha", obtener_fecha_argentina())
         fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
 
     st.sidebar.header("Filtrar por nombre de Usuario")
