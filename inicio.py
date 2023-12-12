@@ -74,9 +74,6 @@ def main():
 
     if logged_in:
         st.sidebar.title("Menú")
-        # Luego, en tu código, puedes usar la función
-        fecha_actual_argentina = obtener_fecha_argentina()
-        st.write(f"La fecha actual en Argentina es: {fecha_actual_argentina}")
 
         if user_rol == "admin":
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
