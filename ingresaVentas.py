@@ -2,10 +2,9 @@ import streamlit as st
 import boto3
 import pandas as pd
 import io
-import json
 from datetime import datetime
-import os
 from config import cargar_configuracion
+from horario import obtener_fecha_argentina
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -30,8 +29,9 @@ def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
         # Si no hay registros, asignar 1 como idVenta, de lo contrario, incrementar el último idVenta
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
-        # Convertir la fecha a formato string (solo la parte de la fecha)
-        fecha_str = fecha.strftime("%Y-%m-%d") if hasattr(fecha, 'strftime') else fecha
+        # Obtener la fecha actual en Argentina
+        fecha_actual_argentina = obtener_fecha_argentina()
+        fecha_str = fecha_actual_argentina.strftime("%Y-%m-%d")
 
         # Crear una nueva fila como un diccionario
         nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha_str, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'nombreUsuario': nombre_usuario}
@@ -48,13 +48,17 @@ def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
 
     except Exception as e:
         st.error(f"Error al registrar la venta: {e}")
-        
+
 def venta(nombre_usuario):
     st.title("""Registrar Venta \n * Ingrese el nombre del producto, el precio en números enteros y seleccione el método de pago.\n * Presione 'Registrar Venta' para guardar la información de la nueva venta.""")
 
     # Campos para ingresar los datos de la venta
     if st.session_state.user_rol == "admin":
-        fecha = st.date_input("Fecha de la venta:")
+        # Utiliza la función para obtener la fecha de Argentina
+        fecha = st.date_input("Fecha de la venta:", obtener_fecha_argentina())
+    else:
+        fecha = obtener_fecha_argentina()
+
     producto = st.text_input("Producto vendido:")
     precio = st.text_input("Precio:")
     if precio:
@@ -76,7 +80,7 @@ def venta(nombre_usuario):
                 st.warning("Por favor, complete todos los campos.")
         else:
             if producto and precio > 0 and metodo_pago:
-                insertar_venta(datetime.now(), producto, precio, metodo_pago, nombre_usuario)
+                insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario)
             else:
                 st.warning("Por favor, complete todos los campos.")
 

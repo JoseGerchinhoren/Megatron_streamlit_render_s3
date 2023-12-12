@@ -1,9 +1,7 @@
 import streamlit as st
-import json
 import boto3
 import io
 import pandas as pd
-import os
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 import uuid

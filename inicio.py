@@ -1,8 +1,6 @@
 import streamlit as st
 import boto3
 import pandas as pd
-import json
-import os
 from ingresaVentas import venta
 from visualizaVentas import main as visualiza_ventas
 from ingresaPedidoFunda import ingresaPedidoFunda
