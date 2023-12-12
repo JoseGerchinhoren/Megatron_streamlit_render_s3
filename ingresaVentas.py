@@ -13,7 +13,7 @@ aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion(
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar una venta en la base de datos
-def insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario):
+def insertar_venta(producto, precio, metodo_pago, nombre_usuario):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'ventas.csv'

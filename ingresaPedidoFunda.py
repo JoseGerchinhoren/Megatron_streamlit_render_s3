@@ -1,10 +1,9 @@
 import streamlit as st
-import json
 import boto3
 import io
 import pandas as pd
-import os
 from config import cargar_configuracion
+from horario import obtener_fecha_argentina
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -12,22 +11,26 @@ aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion(
 # Conecta a S3
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
-# Función para insertar una venta en la base de datos
-def insertar_pedido(fecha,pedido,nombreCliente,contacto,estado,montoSeña,nombre_usuario):
+# Función para insertar un pedido en la base de datos
+def insertar_pedido(pedido, nombreCliente, contacto, estado, montoSeña, nombre_usuario):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'pedidos.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
         pedidos_df = pd.read_csv(io.BytesIO(response['Body'].read()))
 
-        # Obtener el último idVenta
+        # Obtener el último idPedido
         ultimo_id = pedidos_df['idPedido'].max()
 
-        # Si no hay registros, asignar 1 como idPedidoFunda, de lo contrario, incrementar el último idPedidoFunda
+        # Si no hay registros, asignar 1 como idPedido, de lo contrario, incrementar el último idPedido
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
+        # Obtener la fecha actual en Argentina
+        fecha_actual_argentina = obtener_fecha_argentina()
+        fecha_str = fecha_actual_argentina.strftime("%Y-%m-%d")
+
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idPedido': nuevo_id, 'fecha': fecha, 'pedido': pedido, 'nombreCliente': nombreCliente, 'contacto': contacto, 'estado': estado, 'montoSeña': montoSeña, 'nombreUsuario': nombre_usuario}
+        nueva_fila = {'idPedido': nuevo_id, 'fecha': fecha_str, 'pedido': pedido, 'nombreCliente': nombreCliente, 'contacto': contacto, 'estado': estado, 'montoSeña': montoSeña, 'nombreUsuario': nombre_usuario}
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         pedidos_df = pd.concat([pedidos_df, pd.DataFrame([nueva_fila])], ignore_index=True)

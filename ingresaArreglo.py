@@ -6,6 +6,7 @@ from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 import uuid
 from config import cargar_configuracion
+from horario import obtener_fecha_argentina
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -29,11 +30,15 @@ def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, ti
         # Si no hay registros, asignar 1 como idServicio, de lo contrario, incrementar el último idServicio
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
+        # Obtener la fecha actual en Argentina
+        fecha_actual_argentina = obtener_fecha_argentina()
+        fecha_str = fecha_actual_argentina.strftime("%Y-%m-%d")
+
         # Convertir a entero nuevamente para asegurarse
         nuevo_id = int(nuevo_id)
 
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idServicio': nuevo_id, 'fecha': fecha, 'nombreCliente': nombre_cliente, 'contacto': contacto,
+        nueva_fila = {'idServicio': nuevo_id, 'fecha': fecha_str, 'nombreCliente': nombre_cliente, 'contacto': contacto,
                       'modelo': modelo, 'falla': falla, 'tipoDesbloqueo': tipo_desbloqueo, 'contraseña': contraseña,
                       'imagenPatron': imagen_patron, 'estado': estado, 'observaciones': observaciones,
                       'nombreUsuario': nombre_usuario, 'precio': precio, 'metodoPago': metodo_pago}
