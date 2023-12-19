@@ -15,7 +15,7 @@ aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion(
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 # Función para insertar un servicio técnico en la base de datos
-def insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario, precio, metodo_pago):
+def insertar_servicio_tecnico(nombre_cliente, contacto, modelo, falla, tipo_desbloqueo, contraseña, imagen_patron, estado, observaciones, nombre_usuario, precio, metodo_pago):
     try:
         # Leer el archivo CSV desde S3
         csv_file_key = 'serviciosTecnicos.csv'
@@ -63,7 +63,6 @@ def ingresa_servicio_tecnico(nombre_usuario):
     st.title("""Nuevo Servicio Técnico \n * Ingrese los detalles del servicio técnico, incluyendo nombre del cliente, contacto, modelo, falla, tipo de desbloqueo y estado. \n * Si se selecciona 'Contraseña o Pin' se habilita un campo para ingresar la contraseña o pin. \n * Si se selecciona 'Patron' se habilita un campo para realizar el dibujo del patron de desbloqueo. \n * Complete la información requerida y presione 'Registrar Servicio Técnico'.""")
 
     # Campos para ingresar los datos del servicio técnico
-    fecha = st.date_input("Fecha del Servicio Técnico:")
     nombre_cliente = st.text_input("Nombre del Cliente:")
     contacto = st.text_input("Contacto:")
     modelo = st.text_input("Modelo:")
@@ -115,19 +114,19 @@ def ingresa_servicio_tecnico(nombre_usuario):
 
     # Botón para registrar el servicio técnico
     if st.button("Registrar Servicio Técnico"):
-        if fecha and nombre_cliente and contacto and modelo and falla and tipo_desbloqueo and estado:
+        if nombre_cliente and contacto and modelo and falla and tipo_desbloqueo and estado:
             # Ajuste para manejar la contraseña, el patrón, el precio y el método de pago
             if tipo_desbloqueo == "Sin Contraseña":
-                insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
+                insertar_servicio_tecnico(nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
                                         None, None, estado, observaciones, nombre_usuario, precio, metodo_pago)
             elif tipo_desbloqueo == "Contraseña o Pin":
-                insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
+                insertar_servicio_tecnico(nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
                                         contraseña, None, estado, observaciones, nombre_usuario, precio, metodo_pago)
             elif tipo_desbloqueo == "Patron":
                 if imagen_patron:
                     # Convertir el dibujo a una imagen y guardarla en S3
                     imagen_patron_url = guardar_dibujo_s3(imagen_patron, nombre_cliente, region_name)
-                    insertar_servicio_tecnico(fecha, nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
+                    insertar_servicio_tecnico(nombre_cliente, contacto, modelo, falla, tipo_desbloqueo,
                                             None, imagen_patron_url, estado, observaciones, nombre_usuario, precio, metodo_pago)
                 else:
                     st.warning("Por favor, dibuja un patrón.")

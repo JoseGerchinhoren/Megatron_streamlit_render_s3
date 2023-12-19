@@ -49,7 +49,6 @@ def ingresaPedidoFunda(nombre_usuario):
     st.title("""Nuevo Pedido \n * Ingrese la descripción del pedido, el nombre del cliente, un numero o email de contacto y seleccione el estado del pedido. \n * Si el estado es 'Señado', ingrese el monto de la seña.""")
 
     # Campos para ingresar los datos del pedido de funda
-    fecha = st.date_input("Fecha del Pedido:")
     pedido = st.text_input("Pedido:")
     nombreCliente = st.text_input("Nombre del Cliente:")
     contacto = st.text_input("Contacto:")
@@ -70,8 +69,8 @@ def ingresaPedidoFunda(nombre_usuario):
 
     # Botón para registrar el pedido de funda
     if st.button("Registrar Pedido"):
-        if fecha and pedido and nombreCliente and contacto and estado:
-            insertar_pedido(fecha, pedido, nombreCliente, contacto, estado, monto_sena, nombre_usuario)
+        if pedido and nombreCliente and contacto and estado:
+            insertar_pedido(pedido, nombreCliente, contacto, estado, monto_sena, nombre_usuario)
         else:
             st.warning("Por favor, complete todos los campos.")
 

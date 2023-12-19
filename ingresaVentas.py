@@ -53,12 +53,6 @@ def venta(nombre_usuario):
     st.title("""Registrar Venta \n * Ingrese el nombre del producto, el precio en números enteros y seleccione el método de pago.\n * Presione 'Registrar Venta' para guardar la información de la nueva venta.""")
 
     # Campos para ingresar los datos de la venta
-    if st.session_state.user_rol == "admin":
-        # Utiliza la función para obtener la fecha de Argentina
-        fecha = st.date_input("Fecha de la venta:", obtener_fecha_argentina())
-    else:
-        fecha = obtener_fecha_argentina()
-
     producto = st.text_input("Producto vendido:")
     precio = st.text_input("Precio:")
     if precio:
@@ -74,13 +68,13 @@ def venta(nombre_usuario):
     # Botón para registrar la venta
     if st.button("Registrar Venta"):
         if st.session_state.user_rol == "admin":
-            if fecha and producto and precio > 0 and metodo_pago:
-                insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario)
+            if producto and precio > 0 and metodo_pago:
+                insertar_venta(producto, precio, metodo_pago, nombre_usuario)
             else:
                 st.warning("Por favor, complete todos los campos.")
         else:
             if producto and precio > 0 and metodo_pago:
-                insertar_venta(fecha, producto, precio, metodo_pago, nombre_usuario)
+                insertar_venta(producto, precio, metodo_pago, nombre_usuario)
             else:
                 st.warning("Por favor, complete todos los campos.")
 

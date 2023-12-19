@@ -116,7 +116,7 @@ def editar_ventas():
 
                 # Mostrar campos para editar cada variable
                 for column in venta_editar_df.columns:
-                    if column != 'idVenta' and column != 'nombreUsuario' and column != 'fecha':
+                    if column != 'idVenta' and column != 'nombreUsuario':
                         valor_actual = venta_editar_df.iloc[0][column]
                         
                         if column == "metodoPago":
