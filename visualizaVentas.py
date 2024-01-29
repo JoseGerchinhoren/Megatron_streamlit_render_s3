@@ -1,10 +1,7 @@
 import streamlit as st
 import boto3
-import os
 import pandas as pd
 import io
-from datetime import datetime, timedelta
-import json
 from config import cargar_configuracion
 from horario import obtener_fecha_argentina
 
@@ -22,7 +19,7 @@ def visualiza_ventas():
     # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
     csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
     response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-    ventas_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'idVenta': int, 'precio': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
+    ventas_df = pd.read_csv(io.BytesIO(response['Body'].read())).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Renombrar columnas y cambiar el orden
     ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Nombre de Usuario'}, inplace=True)
@@ -102,7 +99,7 @@ def editar_ventas():
         # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
         csv_file_key = 'ventas.csv'
         response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
-        ventas_df = pd.read_csv(io.BytesIO(response['Body'].read()), dtype={'idVenta': int, 'precio': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
+        ventas_df = pd.read_csv(io.BytesIO(response['Body'].read())).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
         # Filtrar el DataFrame para obtener el pedido específico por ID
         venta_editar_df = ventas_df[ventas_df['idVenta'].astype(str) == str(id_venta_editar)]

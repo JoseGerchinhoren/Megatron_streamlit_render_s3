@@ -137,7 +137,7 @@ def visualiza_pedidos_fundas():
     # Cargar el archivo pedidosFundas.csv desde S3
     s3_csv_key = 'pedidos.csv'
     csv_obj = s3.get_object(Bucket=bucket_name, Key=s3_csv_key)
-    pedidos_df = pd.read_csv(io.BytesIO(csv_obj['Body'].read()), dtype={'contacto': str, 'idPedido': int, 'montoSeña': int}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
+    pedidos_df = pd.read_csv(io.BytesIO(csv_obj['Body'].read()), dtype={'contacto': str, 'idPedido': int, 'montoSeña': float}).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Cambiar los nombres de las columnas
     pedidos_df.columns = ["ID", "Fecha", "Pedido", "Nombre del Cliente", "Contacto", "Estado", "Monto Seña", "Nombre de Usuario"]
