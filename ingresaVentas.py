@@ -5,6 +5,7 @@ import io
 from datetime import datetime
 from config import cargar_configuracion
 from horario import obtener_fecha_argentina
+import time
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -46,11 +47,18 @@ def insertar_venta(producto, precio, metodo_pago, nombre_usuario):
 
         st.success("Venta registrada exitosamente")
 
+        # Esperar 2 segundos antes de recargar la aplicación
+        time.sleep(2)
+        
+        # Recargar la aplicación
+        st.rerun()
+
     except Exception as e:
         st.error(f"Error al registrar la venta: {e}")
 
 def venta(nombre_usuario):
-    st.title("""Registrar Venta \n * Ingrese el nombre del producto, el precio en números enteros y seleccione el método de pago.\n * Presione 'Registrar Venta' para guardar la información de la nueva venta.""")
+    st.title("Ingresar Venta")
+    # st.title("""Registrar Venta \n * Ingrese el nombre del producto, el precio en números enteros y seleccione el método de pago.\n * Presione 'Registrar Venta' para guardar la información de la nueva venta.""")
 
     # Campos para ingresar los datos de la venta
     producto = st.text_input("Producto vendido:")

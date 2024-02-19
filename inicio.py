@@ -76,41 +76,49 @@ def main():
         st.sidebar.title("Menú")
 
         if user_rol == "admin":
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos", "Crear Usuario", "Visualizar Usuarios"])
-            if selected_option == "Nueva Venta":
-                venta(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Ventas":
-                visualiza_ventas()
-            if selected_option == "Nuevo Pedido":
-                ingresaPedidoFunda(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Pedidos":
-                visualiza_pedidos_fundas()
-            if selected_option == "Nuevo Servicio Tecnico":
-                ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Servicios Tecnicos":
-                visualiza_arreglos()
-            if selected_option == "Crear Usuario":
-                ingresa_usuario()
-            if selected_option == "Visualizar Usuarios":
-                visualizar_usuarios()
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Ventas", "Pedidos", "Servicios Tecnicos", "Usuarios"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Ventas", "Pedidos", "Servicios Tecnicos"])
+            if selected_option == "Ventas":
+                with st.expander('Ingresar Venta'):
+                    venta(st.session_state.user_nombre_apellido)
+                with st.expander('Visualizar Ventas'):
+                    visualiza_ventas()
+            if selected_option == "Pedidos":
+                with st.expander('Ingresar Pedido'):
+                    ingresaPedidoFunda(st.session_state.user_nombre_apellido)
+                with st.expander('Visualizar Pedidos'):
+                    visualiza_pedidos_fundas()
+            if selected_option == "Servicios Tecnicos":
+                with st.expander('Ingresar Servicio Tecnico'):
+                    ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
+                with st.expander('Visualizar Servicios Tecnicos'):
+                    visualiza_arreglos()
+            if selected_option == "Usuarios":
+                with st.expander('Crear Usuario'):
+                    ingresa_usuario()
+                with st.expander('Visualizar Usuarios'):
+                    visualizar_usuarios()
 
             if selected_option == "Inicio":
                 texto_inicio()
 
         else:
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Nueva Venta", "Visualizar Ventas", "Nuevo Pedido", "Visualizar Pedidos", "Nuevo Servicio Tecnico", "Visualizar Servicios Tecnicos"])
-            if selected_option == "Nueva Venta":
-                venta(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Ventas":
-                visualiza_ventas()
-            if selected_option == "Nuevo Pedido":
-                ingresaPedidoFunda(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Pedidos":
-                visualiza_pedidos_fundas()
-            if selected_option == "Nuevo Servicio Tecnico":
-                ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
-            if selected_option == "Visualizar Servicios Tecnicos":
-                visualiza_arreglos()
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Ventas", "Pedidos", "Servicios Tecnicos"])
+            if selected_option == "Ventas":
+                with st.expander('Ingresar Venta'):
+                    venta(st.session_state.user_nombre_apellido)
+                with st.expander('Visualizar Ventas'):
+                    visualiza_ventas()
+            if selected_option == "Pedidos":
+                with st.expander('Ingresar Pedido'):
+                    ingresaPedidoFunda(st.session_state.user_nombre_apellido)
+                with st.expander('Visualizar Pedidos'):
+                    visualiza_pedidos_fundas()
+            if selected_option == "Servicios Tecnicos":
+                with st.expander('Ingresar Servicio Tecnico'):
+                    ingresa_servicio_tecnico(st.session_state.user_nombre_apellido)
+                with st.expander('Visualizar Servicios Tecnicos'):
+                    visualiza_arreglos()
 
             if selected_option == "Inicio":
                 texto_inicio()
