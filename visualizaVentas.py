@@ -40,37 +40,38 @@ def visualiza_ventas():
     # Convertir la columna "ID" a tipo cadena y eliminar las comas
     ventas_df['ID'] = ventas_df['ID'].astype(str).str.replace(',', '')
 
-    # Filtros
-    st.subheader("Filtrar por Rango de Fechas")
-    aplicar_filtro_rango_fechas = st.checkbox("Aplicar filtro de rango de fechas", key="filtro_rango_fechas")
+    # Filtros en el sidebar
+    with st.sidebar:
+        st.subheader("Filtrar por Rango de Fechas")
+        aplicar_filtro_rango_fechas = st.checkbox("Aplicar filtro de rango de fechas", key="filtro_rango_fechas")
 
-    fecha_filtro = None
-    if aplicar_filtro_rango_fechas:
-        fecha_inicio = st.date_input("Fecha de Inicio", obtener_fecha_argentina().replace(day=1))
-        fecha_fin = st.date_input("Fecha de Fin", obtener_fecha_argentina())
-        rango_fechas_filtro = (fecha_inicio.strftime('%Y-%m-%d'), fecha_fin.strftime('%Y-%m-%d'))
-        ventas_df = ventas_df[(ventas_df['Fecha'] >= rango_fechas_filtro[0]) & (ventas_df['Fecha'] <= rango_fechas_filtro[1])]
+        fecha_filtro = None
+        if aplicar_filtro_rango_fechas:
+            fecha_inicio = st.date_input("Fecha de Inicio", obtener_fecha_argentina().replace(day=1))
+            fecha_fin = st.date_input("Fecha de Fin", obtener_fecha_argentina())
+            rango_fechas_filtro = (fecha_inicio.strftime('%Y-%m-%d'), fecha_fin.strftime('%Y-%m-%d'))
+            ventas_df = ventas_df[(ventas_df['Fecha'] >= rango_fechas_filtro[0]) & (ventas_df['Fecha'] <= rango_fechas_filtro[1])]
 
-    st.subheader("Filtro de Ventas del día")
+        st.subheader("Filtro de Ventas del día")
 
-    # Utilizar el argumento value para activar el checkbox por defecto
-    aplicar_filtro_ventas_dia = st.checkbox("Aplicar Filtro de Ventas del día", value=True)
+        # Utilizar el argumento value para activar el checkbox por defecto
+        aplicar_filtro_ventas_dia = st.checkbox("Aplicar Filtro de Ventas del día", value=True)
 
-    if aplicar_filtro_ventas_dia:
-        fecha_seleccionada = st.date_input("Seleccione la fecha", obtener_fecha_argentina())
-        fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
+        if aplicar_filtro_ventas_dia:
+            fecha_seleccionada = st.date_input("Seleccione la fecha", obtener_fecha_argentina())
+            fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
 
-    if fecha_filtro:
-        ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
+        if fecha_filtro:
+            ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
 
-    st.subheader("Filtrar por nombre de Usuario")
+        st.subheader("Filtrar por nombre de Usuario")
 
-    # Filtrar por nombre de Usuario
-    nombres_usuarios = ventas_df['Nombre de Usuario'].unique().tolist()
-    nombre_usuario_seleccionado = st.selectbox("Filtrar por nombre de Usuario", [""] + nombres_usuarios)
+        # Filtrar por nombre de Usuario
+        nombres_usuarios = ventas_df['Nombre de Usuario'].unique().tolist()
+        nombre_usuario_seleccionado = st.selectbox("Filtrar por nombre de Usuario", [""] + nombres_usuarios)
 
-    if nombre_usuario_seleccionado:
-        ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == nombre_usuario_seleccionado]
+        if nombre_usuario_seleccionado:
+            ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == nombre_usuario_seleccionado]
 
     # Mostrar la tabla de ventas
     st.dataframe(ventas_df)
