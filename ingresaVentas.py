@@ -47,11 +47,11 @@ def insertar_venta(producto, precio, metodo_pago, nombre_usuario):
 
         st.success("Venta registrada exitosamente")
 
-        # Esperar 2 segundos antes de recargar la aplicación
-        time.sleep(2)
+        # # Esperar 2 segundos antes de recargar la aplicación
+        # time.sleep(2)
         
-        # Recargar la aplicación
-        st.rerun()
+        # # Recargar la aplicación
+        # st.rerun()
 
     except Exception as e:
         st.error(f"Error al registrar la venta: {e}")

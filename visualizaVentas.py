@@ -13,10 +13,9 @@ s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=
 
 def visualiza_ventas():
     st.title("Visualizar Ventas")
-    # st.title("""Visualizar Ventas\n * Por defecto se muestran las ventas del día, para ver todas las ventas quite el filtro en el menu de la izquierda. \n * Para aplicar filtros adicionales, despliegue el menú de la izquierda. Puede filtrar por rango de fechas o por nombre de usuario. \n * Para editar las ventas ingrese el ID correspondiente y modifique los campos deseados. Luego, presione 'Guardar cambios'. Los usuarios sin permisos de administrador solo pueden editar las vetas del día actual.""")
 
     # Descargar el archivo CSV desde S3 y cargarlo en un DataFrame
-    csv_file_key = 'ventas.csv'  # Cambiado a minúsculas
+    csv_file_key = 'ventas.csv'
     response = s3.get_object(Bucket=bucket_name, Key=csv_file_key)
     ventas_df = pd.read_csv(io.BytesIO(response['Body'].read())).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
@@ -25,37 +24,6 @@ def visualiza_ventas():
 
     # Convertir la columna "Precio" a tipo cadena y eliminar las comas
     ventas_df['Precio'] = ventas_df['Precio'].astype(str).str.replace(',', '')
-
-    # Filtros
-    st.sidebar.header("Filtrar por Rango de Fechas")
-    aplicar_filtro_rango_fechas = st.sidebar.checkbox("Aplicar filtro de rango de fechas", key="filtro_rango_fechas")
-
-    if aplicar_filtro_rango_fechas:
-        fecha_inicio = st.sidebar.date_input("Fecha de Inicio", obtener_fecha_argentina().replace(day=1))
-        fecha_fin = st.sidebar.date_input("Fecha de Fin", obtener_fecha_argentina())
-        rango_fechas_filtro = (fecha_inicio.strftime('%Y-%m-%d'), fecha_fin.strftime('%Y-%m-%d'))
-        ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
-        ventas_df = ventas_df[(ventas_df['Fecha'] >= rango_fechas_filtro[0]) & (ventas_df['Fecha'] <= rango_fechas_filtro[1])]
-
-    # Aplicar los filtros
-    fecha_filtro = None
-    st.sidebar.header("Filtro de Ventas del día")
-
-    # Utilizar el argumento value para activar el checkbox por defecto
-    if st.sidebar.checkbox("Aplicar Filtro de Ventas del día", value=True):
-        fecha_seleccionada = st.sidebar.date_input("Seleccione la fecha", obtener_fecha_argentina())
-        fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
-
-    st.sidebar.header("Filtrar por nombre de Usuario")
-    nombre_usuario = st.sidebar.text_input("Nombre de Usuario", key="nombre_usuario")
-
-    # Aplicar filtros
-    if fecha_filtro:
-        ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
-        ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
-
-    if nombre_usuario:
-        ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == nombre_usuario]
 
     # Asegurarse de que la columna 'Fecha' sea de tipo datetime
     ventas_df['Fecha'] = pd.to_datetime(ventas_df['Fecha'])
@@ -72,6 +40,38 @@ def visualiza_ventas():
     # Convertir la columna "ID" a tipo cadena y eliminar las comas
     ventas_df['ID'] = ventas_df['ID'].astype(str).str.replace(',', '')
 
+    # Filtros
+    st.subheader("Filtrar por Rango de Fechas")
+    aplicar_filtro_rango_fechas = st.checkbox("Aplicar filtro de rango de fechas", key="filtro_rango_fechas")
+
+    fecha_filtro = None
+    if aplicar_filtro_rango_fechas:
+        fecha_inicio = st.date_input("Fecha de Inicio", obtener_fecha_argentina().replace(day=1))
+        fecha_fin = st.date_input("Fecha de Fin", obtener_fecha_argentina())
+        rango_fechas_filtro = (fecha_inicio.strftime('%Y-%m-%d'), fecha_fin.strftime('%Y-%m-%d'))
+        ventas_df = ventas_df[(ventas_df['Fecha'] >= rango_fechas_filtro[0]) & (ventas_df['Fecha'] <= rango_fechas_filtro[1])]
+
+    st.subheader("Filtro de Ventas del día")
+
+    # Utilizar el argumento value para activar el checkbox por defecto
+    aplicar_filtro_ventas_dia = st.checkbox("Aplicar Filtro de Ventas del día", value=True)
+
+    if aplicar_filtro_ventas_dia:
+        fecha_seleccionada = st.date_input("Seleccione la fecha", obtener_fecha_argentina())
+        fecha_filtro = (fecha_seleccionada.strftime('%Y-%m-%d'), fecha_seleccionada.strftime('%Y-%m-%d'))
+
+    if fecha_filtro:
+        ventas_df = ventas_df[(ventas_df['Fecha'] >= fecha_filtro[0]) & (ventas_df['Fecha'] <= fecha_filtro[1])]
+
+    st.subheader("Filtrar por nombre de Usuario")
+
+    # Filtrar por nombre de Usuario
+    nombres_usuarios = ventas_df['Nombre de Usuario'].unique().tolist()
+    nombre_usuario_seleccionado = st.selectbox("Filtrar por nombre de Usuario", [""] + nombres_usuarios)
+
+    if nombre_usuario_seleccionado:
+        ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == nombre_usuario_seleccionado]
+
     # Mostrar la tabla de ventas
     st.dataframe(ventas_df)
 
@@ -79,14 +79,23 @@ def visualiza_ventas():
     ventas_df['Precio'] = pd.to_numeric(ventas_df['Precio'], errors='coerce')
 
     # Verificar si se han aplicado filtros antes de mostrar estadísticas
-    if aplicar_filtro_rango_fechas or fecha_filtro or nombre_usuario:
+    if aplicar_filtro_rango_fechas or fecha_filtro or nombre_usuario_seleccionado:
         # Calcular y mostrar estadísticas
         total_precios = int(ventas_df["Precio"].sum())  # Convertir a número entero
-        st.subheader(f"Total de Ventas: ${total_precios}")
+        st.header(f"Total de Ventas: ${total_precios}")
 
-        for metodo_pago in ventas_df["Método de Pago"].unique():
-            total_metodo_pago = ventas_df[ventas_df["Método de Pago"] == metodo_pago]["Precio"].sum()
-            st.write(f"Total en {metodo_pago}: ${int(total_metodo_pago)}")  # Convertir a número entero
+        # Sumar las ventas por método de pago
+        ventas_tarjeta = int(ventas_df[(ventas_df["Método de Pago"] == "Tarjeta de Crédito") | (ventas_df["Método de Pago"] == "Tarjeta de Débito")]["Precio"].sum())  # Convertir a número entero
+        ventas_transferencias = int(ventas_df[ventas_df["Método de Pago"] == "Transferencia"]["Precio"].sum())  # Convertir a número entero
+        ventas_efectivo = int(ventas_df[ventas_df["Método de Pago"] == "Efectivo"]["Precio"].sum())  # Convertir a número entero
+        ventas_otros = int(ventas_df[ventas_df["Método de Pago"] == "Otro"]["Precio"].sum())  # Convertir a número entero
+
+        st.subheader(f"Efectivo: ${ventas_efectivo}")
+        st.subheader(f"Tarjeta: ${ventas_tarjeta}")
+        st.write(f"Tarjeta de Crédito: ${int(ventas_df[ventas_df['Método de Pago'] == 'Tarjeta de Crédito']['Precio'].sum())}")  # Convertir a número entero
+        st.write(f"Tarjeta de Débito: ${int(ventas_df[ventas_df['Método de Pago'] == 'Tarjeta de Débito']['Precio'].sum())}")  # Convertir a número entero
+        st.subheader(f"Transferencias: ${ventas_transferencias}")
+        st.write(f"Otros: ${ventas_otros}")
 
 def editar_ventas():
     st.header("Editar Ventas")
