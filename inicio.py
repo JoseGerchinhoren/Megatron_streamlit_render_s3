@@ -44,6 +44,9 @@ user_rol = st.session_state.get("user_rol", "")
 # Función para verificar las credenciales y obtener el rol del usuario
 def login(username, password):
     try:
+        # Capitalizar el nombre de usuario ingresado
+        username = username.strip().title()
+
         usuarios_df = buscar_usuarios(username)
 
         if not usuarios_df.empty:
