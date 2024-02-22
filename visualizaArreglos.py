@@ -12,9 +12,8 @@ aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion(
 s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=region_name)
 
 def visualiza_servicios_tecnicos():
-    st.title("""Visualizar Servicios Técnicos \n * Visualice todos los servicios técnicos y filtre por estado. \n * Busque la imagen del patrón de desbloqueo ingresando el ID y presionando 'Ver Imagen del Patrón'. \n * Edite el estado del servicio técnico ingresando el ID correspondiente.""")
-
-    st.header("Servicios Técnicos")
+    # st.title("""Visualizar Servicios Técnicos \n * Visualice todos los servicios técnicos y filtre por estado. \n * Busque la imagen del patrón de desbloqueo ingresando el ID y presionando 'Ver Imagen del Patrón'. \n * Edite el estado del servicio técnico ingresando el ID correspondiente.""")
+    st.title("Visualizar Servicios Técnicos")
 
     # Cargar el archivo serviciosTecnicos.csv desde S3
     s3_csv_key = 'serviciosTecnicos.csv'
@@ -68,8 +67,20 @@ def editar_estado_servicio_tecnico():
 
         if not servicios_editar_df.empty:
             # Mostrar campo para editar el estado
-            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["Aceptado", "Consulta", "Tecnico", "En Local", "Terminado", "Cancelado"], index=0)
+            nuevo_estado = st.selectbox("Nuevo valor para Estado:", ["Aceptado", "Consulta", "Tecnico", "En Local", "A Cobrar", "Terminado", "Cancelado"], index=0)
             servicios_editar_df.loc[servicios_editar_df.index[0], 'estado'] = nuevo_estado
+
+            if nuevo_estado == "A Cobrar":
+                # Si el estado es "A Cobrar", mostrar campos adicionales
+                precio = st.text_input("Precio:")
+                if precio:
+                    if precio.isdigit():
+                        precio = int(precio)
+                    else:
+                        st.warning("El precio debe ser un número entero.")
+                        precio = None
+                else:
+                    precio = None
 
             if nuevo_estado == "Terminado":
                 # Si el estado es "Terminado", mostrar campos adicionales
@@ -167,7 +178,7 @@ def editar_servicio_tecnico():
                         if column == "tipoDesbloqueo":
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Sin Contraseña", "Contraseña o Pin", "Patron"], index=["Sin Contraseña", "Contraseña o Pin", "Patron"].index(servicio_editar_df.iloc[0][column]))
                         elif column == "estado":
-                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "A Cobrar", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "A Cobrar", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
                         elif column == "metodoPago":
                             opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
                             valor_actual = servicio_editar_df.iloc[0]["metodoPago"]
@@ -208,7 +219,7 @@ def editar_servicio_tecnico():
                         if column == "tipoDesbloqueo":
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Sin Contraseña", "Contraseña o Pin", "Patron"], index=["Sin Contraseña", "Contraseña o Pin", "Patron"].index(servicio_editar_df.iloc[0][column]))
                         elif column == "estado":
-                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Aceptado", "Consulta", "Tecnico", "A Cobrar", "Terminado", "Cancelado"], index=["Aceptado", "Consulta", "Tecnico", "A Cobrar", "Terminado", "Cancelado"].index(servicio_editar_df.iloc[0][column]))  
                         elif column == "metodoPago":
                             opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
                             valor_actual = servicio_editar_df.iloc[0]["metodoPago"]

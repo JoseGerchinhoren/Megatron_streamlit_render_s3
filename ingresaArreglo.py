@@ -60,7 +60,8 @@ def insertar_servicio_tecnico(nombre_cliente, contacto, modelo, falla, tipo_desb
         st.error(f"Error al registrar el servicio técnico: {e}")
 
 def ingresa_servicio_tecnico(nombre_usuario):
-    st.title("""Nuevo Servicio Técnico \n * Ingrese los detalles del servicio técnico, incluyendo nombre del cliente, contacto, modelo, falla, tipo de desbloqueo y estado. \n * Si se selecciona 'Contraseña o Pin' se habilita un campo para ingresar la contraseña o pin. \n * Si se selecciona 'Patron' se habilita un campo para realizar el dibujo del patron de desbloqueo. \n * Complete la información requerida y presione 'Registrar Servicio Técnico'.""")
+    # st.title("""Nuevo Servicio Técnico \n * Ingrese los detalles del servicio técnico, incluyendo nombre del cliente, contacto, modelo, falla, tipo de desbloqueo y estado. \n * Si se selecciona 'Contraseña o Pin' se habilita un campo para ingresar la contraseña o pin. \n * Si se selecciona 'Patron' se habilita un campo para realizar el dibujo del patron de desbloqueo. \n * Complete la información requerida y presione 'Registrar Servicio Técnico'.""")
+    st.title("Ingresar Servicio Técnico")
 
     # Campos para ingresar los datos del servicio técnico
     nombre_cliente = st.text_input("Nombre del Cliente:")
@@ -92,7 +93,22 @@ def ingresa_servicio_tecnico(nombre_usuario):
             key="canvas",
         )
 
-    estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"])
+    estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "A Cobrar", "Terminado", "Cancelado"])
+
+    # Verificar si el estado es "A Cobrar" para mostrar los campos adicionales
+    if estado == "A Cobrar":
+        precio = st.text_input("Precio:")
+        if precio:
+            if precio.isdigit():
+                precio = int(precio)
+            else:
+                st.warning("El precio debe ser un número entero.")
+                precio = None
+        else:
+            precio = None
+    else:
+        precio = None
+        metodo_pago = None
 
     # Verificar si el estado es "Terminado" para mostrar los campos adicionales
     if estado == "Terminado":
