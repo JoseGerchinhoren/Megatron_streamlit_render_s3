@@ -86,7 +86,7 @@ def visualiza_ventas():
         st.header(f"Total de Ventas: ${total_precios}")
 
         # Sumar las ventas por método de pago
-        ventas_tarjeta = int(ventas_df[(ventas_df["Método de Pago"] == "Tarjeta de Crédito") | (ventas_df["Método de Pago"] == "Tarjeta de Débito")]["Precio"].sum())  # Convertir a número entero
+        ventas_tarjeta = int(ventas_df[(ventas_df["Método de Pago"] == "Tarjeta de Crédito") | (ventas_df["Método de Pago"] == "Tarjeta de Débito") | (ventas_df["Método de Pago"] == "Codigo QR")]["Precio"].sum())  # Convertir a número entero
         ventas_transferencias = int(ventas_df[ventas_df["Método de Pago"] == "Transferencia"]["Precio"].sum())  # Convertir a número entero
         ventas_efectivo = int(ventas_df[ventas_df["Método de Pago"] == "Efectivo"]["Precio"].sum())  # Convertir a número entero
         ventas_otros = int(ventas_df[ventas_df["Método de Pago"] == "Otro"]["Precio"].sum())  # Convertir a número entero
@@ -95,6 +95,7 @@ def visualiza_ventas():
         st.subheader(f"Tarjeta: ${ventas_tarjeta}")
         st.write(f"Tarjeta de Crédito: ${int(ventas_df[ventas_df['Método de Pago'] == 'Tarjeta de Crédito']['Precio'].sum())}")  # Convertir a número entero
         st.write(f"Tarjeta de Débito: ${int(ventas_df[ventas_df['Método de Pago'] == 'Tarjeta de Débito']['Precio'].sum())}")  # Convertir a número entero
+        st.write(f"Codigo QR: ${int(ventas_df[ventas_df['Método de Pago'] == 'Codigo QR']['Precio'].sum())}")  # Convertir a número entero
         st.subheader(f"Transferencias: ${ventas_transferencias}")
         st.write(f"Otros: ${ventas_otros}")
 
@@ -126,7 +127,7 @@ def editar_ventas():
                         valor_actual = venta_editar_df.iloc[0][column]
                         
                         if column == "metodoPago":
-                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
+                            opciones_metodo_pago = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Codigo QR", "Otro"]
                             index_actual = opciones_metodo_pago.index(valor_actual) if valor_actual in opciones_metodo_pago else 0
                             nuevo_valor = st.selectbox(f"Nuevo valor para {column}", opciones_metodo_pago, index=index_actual)
                         else:
@@ -163,7 +164,7 @@ def editar_ventas():
                 for column in venta_editar_df.columns:
                     if column != 'idVenta' and column != 'nombreUsuario' and column != 'fecha':
                         if column == "metodoPago":
-                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"].index(venta_editar_df.iloc[0][column]))
+                            nuevo_valor = st.selectbox(f"Nuevo valor para {column}", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Codigo QR", "Otro"], index=["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Codigo QR", "Otro"].index(venta_editar_df.iloc[0][column]))
                         else:
                             nuevo_valor = st.text_input(f"Nuevo valor para {column}", value=venta_editar_df.iloc[0][column])
 

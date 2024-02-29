@@ -5,7 +5,6 @@ import io
 from datetime import datetime
 from config import cargar_configuracion
 from horario import obtener_fecha_argentina
-import time
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -71,7 +70,7 @@ def venta(nombre_usuario):
             precio = None
     else:
         precio = None
-    metodo_pago = st.selectbox("Método de pago:", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"])
+    metodo_pago = st.selectbox("Método de pago:", ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Codigo QR", "Otro"])
 
     # Botón para registrar la venta
     if st.button("Registrar Venta"):
