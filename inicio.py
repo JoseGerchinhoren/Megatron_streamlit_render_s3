@@ -80,7 +80,6 @@ def main():
 
         if user_rol == "admin":
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Ventas", "Pedidos", "Servicios Tecnicos", "Usuarios"])
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Ventas", "Pedidos", "Servicios Tecnicos"])
             if selected_option == "Ventas":
                 with st.expander('Ingresar Venta'):
                     venta(st.session_state.user_nombre_apellido)
