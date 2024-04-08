@@ -12,7 +12,6 @@ from visualizaUsuarios import main as visualizar_usuarios
 from PIL import Image
 from config import cargar_configuracion
 from horario import obtener_fecha_argentina
-# from cierreCaja import 
 
 # Obtener credenciales
 aws_access_key, aws_secret_key, region_name, bucket_name = cargar_configuracion()
@@ -74,7 +73,7 @@ def logout():
     st.success("Sesión cerrada exitosamente")
 
 def main():
-    st.title("Megatron Accesorios")
+    st.title("📱:blue[Megatron Accesorios]")
 
     if logged_in:
         st.sidebar.title("Menú")
