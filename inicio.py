@@ -73,7 +73,9 @@ def logout():
     st.success("Sesión cerrada exitosamente")
 
 def main():
-    st.title("📱:blue[Megatron Accesorios]")
+    # st.title("📱:blue[Megatron Accesorios]")
+    st.markdown("<h1 style='text-align: center; color: blue;'>📱Megatron Accesorios</h1>", unsafe_allow_html=True)
+
 
     if logged_in:
         st.sidebar.title("Menú")
