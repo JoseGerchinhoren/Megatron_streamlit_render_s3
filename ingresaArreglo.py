@@ -83,9 +83,9 @@ def ingresa_servicio_tecnico(nombre_usuario):
     if tipo_desbloqueo == "Patron":
         st.warning("Dibuja el patrón:")
         imagen_patron = st_canvas(
-            fill_color="rgb(0, 255, 255)",  # Cambia aquí al valor de celeste que prefieras
+            fill_color="rgb(0, 255, 255)",
             stroke_width=10,
-            stroke_color="rgb(0, 255, 255)",  # Cambia aquí al valor de celeste que prefieras
+            stroke_color="rgb(0, 255, 255)",
             background_color="rgb(0, 0, 0)",
             height=200,
             width=200,
@@ -93,26 +93,26 @@ def ingresa_servicio_tecnico(nombre_usuario):
             key="canvas",
         )
 
-    estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "A Cobrar", "Terminado", "Cancelado"])
+    estado = st.selectbox("Estado:", ["Aceptado", "Consulta", "Tecnico", "Terminado", "Cancelado"])
 
-    # Verificar si el estado es "A Cobrar" para mostrar los campos adicionales
-    if estado == "A Cobrar":
-        precio = st.text_input("Precio:")
-        if precio:
-            if precio.isdigit():
-                precio = int(precio)
-            else:
-                st.warning("El precio debe ser un número entero.")
-                precio = None
-        else:
-            precio = None
-    else:
-        precio = None
-        metodo_pago = None
+    # # Verificar si el estado es "A Cobrar" para mostrar los campos adicionales
+    # if estado == "A Cobrar":
+    #     precio = st.text_input("Precio Arreglo:")
+    #     if precio:
+    #         if precio.isdigit():
+    #             precio = int(precio)
+    #         else:
+    #             st.warning("El precio debe ser un número entero.")
+    #             precio = None
+    #     else:
+    #         precio = None
+    # else:
+    #     precio = None
+    #     metodo_pago = None
 
     # Verificar si el estado es "Terminado" para mostrar los campos adicionales
     if estado == "Terminado":
-        precio = st.text_input("Precio:")
+        precio = st.text_input("Precio Arreglo:")
         if precio:
             if precio.isdigit():
                 precio = int(precio)
