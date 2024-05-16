@@ -20,7 +20,7 @@ def visualiza_ventas():
     ventas_df = pd.read_csv(io.BytesIO(response['Body'].read())).applymap(lambda x: str(x).replace(',', '') if pd.notna(x) else x)
 
     # Renombrar columnas y cambiar el orden
-    ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Nombre de Usuario'}, inplace=True)
+    ventas_df.rename(columns={'idVenta': 'ID', 'fecha': 'Fecha', 'productoVendido': 'Producto Vendido', 'precio': 'Precio', 'metodoPago': 'Método de Pago', 'nombreUsuario': 'Usuario'}, inplace=True)
 
     # Convertir la columna "Precio" a tipo cadena y eliminar las comas
     ventas_df['Precio'] = ventas_df['Precio'].astype(str).str.replace(',', '')
@@ -67,11 +67,11 @@ def visualiza_ventas():
         st.subheader("Filtrar por nombre de Usuario")
 
         # Filtrar por nombre de Usuario
-        nombres_usuarios = ventas_df['Nombre de Usuario'].unique().tolist()
+        nombres_usuarios = ventas_df['Usuario'].unique().tolist()
         nombre_usuario_seleccionado = st.selectbox("Filtrar por nombre de Usuario", [""] + nombres_usuarios)
 
         if nombre_usuario_seleccionado:
-            ventas_df = ventas_df[ventas_df['Nombre de Usuario'] == nombre_usuario_seleccionado]
+            ventas_df = ventas_df[ventas_df['Usuario'] == nombre_usuario_seleccionado]
 
     # Mostrar la tabla de ventas
     st.dataframe(ventas_df)

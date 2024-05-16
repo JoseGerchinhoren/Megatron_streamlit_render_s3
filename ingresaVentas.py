@@ -29,12 +29,13 @@ def insertar_venta(producto, precio, metodo_pago, nombre_usuario):
         # Si no hay registros, asignar 1 como idVenta, de lo contrario, incrementar el último idVenta
         nuevo_id = 1 if pd.isna(ultimo_id) else int(ultimo_id) + 1
 
-        # Obtener la fecha actual en Argentina
+        # Obtener la fecha y hora actual en Argentina
         fecha_actual_argentina = obtener_fecha_argentina()
         fecha_str = fecha_actual_argentina.strftime("%Y-%m-%d")
+        hora_str = fecha_actual_argentina.strftime("%H:%M")
 
         # Crear una nueva fila como un diccionario
-        nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha_str, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'nombreUsuario': nombre_usuario}
+        nueva_fila = {'idVenta': nuevo_id, 'fecha': fecha_str, 'hora': hora_str, 'productoVendido': producto, 'precio': precio, 'metodoPago': metodo_pago, 'nombreUsuario': nombre_usuario}
 
         # Convertir el diccionario a DataFrame y concatenarlo al DataFrame existente
         ventas_df = pd.concat([ventas_df, pd.DataFrame([nueva_fila])], ignore_index=True)
@@ -46,18 +47,11 @@ def insertar_venta(producto, precio, metodo_pago, nombre_usuario):
 
         st.success("Venta registrada exitosamente")
 
-        # # Esperar 2 segundos antes de recargar la aplicación
-        # time.sleep(2)
-        
-        # # Recargar la aplicación
-        # st.rerun()
-
     except Exception as e:
         st.error(f"Error al registrar la venta: {e}")
 
 def venta(nombre_usuario):
     st.title("Ingresar Venta")
-    # st.title("""Registrar Venta \n * Ingrese el nombre del producto, el precio en números enteros y seleccione el método de pago.\n * Presione 'Registrar Venta' para guardar la información de la nueva venta.""")
 
     # Campos para ingresar los datos de la venta
     producto = st.text_input("Producto vendido:")
