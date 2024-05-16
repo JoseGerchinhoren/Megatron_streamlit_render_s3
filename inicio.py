@@ -73,7 +73,9 @@ def logout():
     st.success("Sesión cerrada exitosamente")
 
 def main():
-    st.title("📱:blue[Megatron Accesorios]")
+    # st.title("📱:blue[Megatron Accesorios]")
+
+    st.image("img\logo megatron luz.png", use_column_width= "always")
 
     if logged_in:
         st.sidebar.title("Menú")

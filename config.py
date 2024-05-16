@@ -9,7 +9,6 @@ def cargar_configuracion():
     # with open("../config.json") as config_file:
     #     config = json.load(config_file)
 
-    # # Desempaquetar las credenciales desde el archivo de configuración
     # aws_access_key = config["aws_access_key"]
     # aws_secret_key = config["aws_secret_key"]
     # region_name = config["region_name"]
